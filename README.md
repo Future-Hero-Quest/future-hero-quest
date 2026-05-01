@@ -9,14 +9,14 @@
 - 类型：2.5D 双人联机合作解谜
 - 平台：WebGL / Windows / Mac
 - 流程：约 15 分钟，2-3 关
-- 引擎：Unity 2022.3 LTS + Photon PUN2
+- 引擎：Unity 6.4.2f1 (6000.4.2f1) + Photon PUN2
 
 详细策划见 [`../Future Hero Quest.md`](../Future%20Hero%20Quest.md)（项目 Plan，含玩法、架构、关卡设计、回退方案）。
 
 ## 开发环境
 
-- **Unity**: 2022.3 LTS（必须，不要 2023/6000）
-- **Render Pipeline**: URP
+- **Unity**: 6.4.2f1 / 6000.4.2f1（当前工程版本；不要用 2022.3 打开，Unity 不支持降级）
+- **Render Pipeline**: Built-in for the current network milestone; URP deferred until art polish
 - **联网**: Photon PUN 2 (Asset Store 免费版)
 - **目标平台**: WebGL（首要）+ Windows + Mac
 
@@ -76,7 +76,7 @@ git checkout -b experimental/feature-name
 ```bash
 # 在项目根目录的 .git/config 里加（Unity 路径按你本地实际改）：
 git config merge.unityyamlmerge.name "Unity SmartMerge"
-git config merge.unityyamlmerge.driver "'C:/Program Files/Unity/Hub/Editor/2022.3.XXf1/Editor/Data/Tools/UnityYAMLMerge.exe' merge -p %O %B %A %A"
+git config merge.unityyamlmerge.driver "'E:/unity/6000.4.2f1/Editor/Data/Tools/UnityYAMLMerge.exe' merge -p %O %B %A %A"
 ```
 
 ## 第一次打开项目
@@ -98,9 +98,10 @@ git config user.email "你的GitHub邮箱"
 
 ## 关键里程碑（参考 Plan）
 
-- [ ] T+6h · v0.1 · 联网双人胶囊体移动
+- [x] T+6h · v0.1 · 联网双人胶囊体移动
 - [ ] T+18h · v0.2 · 第 1 关《种树》完整闭环
-- [ ] T+30h · v0.3 · 第 2 关《开关》
+- [ ] T+30h · v0.3 · 第 2 关《时空信件》完整闭环
+- [ ] T+38h · v0.4 · 第 3 关《镜像》完整闭环
 - [ ] T+40h · v0.5 · 美术整合 + 音乐
 - [ ] T+44h · v0.9 · 打包测试
 - [ ] T+46h · v1.0 · itch.io 提交（5/3 19:00 北京时间 DDL）

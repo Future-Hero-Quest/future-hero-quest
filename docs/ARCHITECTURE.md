@@ -84,7 +84,7 @@ Assets/Scripts/
     └── FootprintSpawner.cs      (蓝色脚印 decal)
 ```
 
-> **当前状态**：以上脚本草稿全部位于 `_drafts/Scripts/` 下，待 Unity 项目建立后整体复制到 `Assets/Scripts/`。
+> **当前状态**：以上脚本已从 `_drafts/Scripts/` 迁入 `Assets/Scripts/`。Unity 工程版本为 6.4.2f1 / 6000.4.2f1，PUN2 已导入，`Launcher` 和 `Level01_Tree` 双胶囊体联网验证场景已生成。
 
 ---
 
@@ -337,10 +337,13 @@ flowchart LR
 
 ## 9. 当前未实现的部分（明确告知队友）
 
-- ❌ Unity 项目本体未建（脚本都在 `_drafts/Scripts/`，待迁入 `Assets/Scripts/`）
-- ❌ Photon AppID 未填（`Assets/Photon/Resources/PhotonServerSettings.asset`）
-- ❌ 三关场景文件未建
-- ❌ Player Prefab 未建
+- ✅ Unity 项目本体已建在仓库根目录（Unity 6.4.2f1 / 6000.4.2f1）
+- ✅ Photon PUN2 已导入
+- ✅ 22 个脚本草稿已迁入 `Assets/Scripts/`，当前无 C# 红错
+- ✅ 已生成 `Assets/Scenes/Launcher.unity`、`Assets/Scenes/Level01_Tree.unity`
+- ✅ 已生成 `PastPlayer` / `FuturePlayer` 胶囊体联网验证 Prefab
+- ⚠️ Photon AppID 只存在本地 `PhotonServerSettings.asset`，不要提交
+- ❌ 三关正式箱庭场景未建
 - ❌ 美术资源未导入
 - ❌ 音频资源未导入
 

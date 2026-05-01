@@ -68,8 +68,9 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
-# Photon AppID 不要提交（如直接写在文件里）
-# Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerSettings.asset
+# Photon AppID 不要提交
+Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerSettings.asset
+Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerSettings.asset.meta
 
 # Cursor / VSCode 用户配置（可选，按需开启）
 # .cursor/

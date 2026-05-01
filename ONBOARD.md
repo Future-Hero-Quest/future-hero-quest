@@ -24,7 +24,7 @@
 
 ### Unity
 - 装 [Unity Hub](https://unity.com/download)
-- 在 Hub 里安装 **Unity 2022.3 LTS**（不要 2023/6000）
+- 在 Hub 里安装 **Unity 6.4.2f1 / 6000.4.2f1**（当前工程版本；不要用 2022.3 打开，Unity 不支持降级）
 - 安装时勾选这些 Module：
   - ✅ **WebGL Build Support**（最终交付用）
   - ✅ **Windows Build Support (IL2CPP)**（PC 队友）
@@ -62,21 +62,21 @@ git config --global --list   # 验证
 ## Step 5 · 配置 Unity Smart Merge（防场景文件冲突 · 3 分钟）
 
 找到你的 Unity Editor 安装路径（默认）：
-- Windows: `C:\Program Files\Unity\Hub\Editor\2022.3.XXf1\Editor\Data\Tools\UnityYAMLMerge.exe`
-- Mac: `/Applications/Unity/Hub/Editor/2022.3.XXf1/Unity.app/Contents/Tools/UnityYAMLMerge`
+- Windows: `E:\unity\6000.4.2f1\Editor\Data\Tools\UnityYAMLMerge.exe`（或你自己的 Unity 6.4 安装路径）
+- Mac: `/Applications/Unity/Hub/Editor/6000.4.2f1/Unity.app/Contents/Tools/UnityYAMLMerge`
 
 在仓库根目录跑（路径按实际改）：
 
 **Windows:**
 ```bash
 git config merge.unityyamlmerge.name "Unity SmartMerge"
-git config merge.unityyamlmerge.driver "'C:/Program Files/Unity/Hub/Editor/2022.3.XXf1/Editor/Data/Tools/UnityYAMLMerge.exe' merge -p %O %B %A %A"
+git config merge.unityyamlmerge.driver "'E:/unity/6000.4.2f1/Editor/Data/Tools/UnityYAMLMerge.exe' merge -p %O %B %A %A"
 ```
 
 **Mac:**
 ```bash
 git config merge.unityyamlmerge.name "Unity SmartMerge"
-git config merge.unityyamlmerge.driver "'/Applications/Unity/Hub/Editor/2022.3.XXf1/Unity.app/Contents/Tools/UnityYAMLMerge' merge -p %O %B %A %A"
+git config merge.unityyamlmerge.driver "'/Applications/Unity/Hub/Editor/6000.4.2f1/Unity.app/Contents/Tools/UnityYAMLMerge' merge -p %O %B %A %A"
 ```
 
 ## Step 6 · 验证你能 push（1 分钟）
