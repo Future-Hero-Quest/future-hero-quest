@@ -40,9 +40,14 @@
 ```bash
 git clone https://github.com/Future-Hero-Quest/future-hero-quest.git
 cd future-hero-quest
-git config user.name "你的真实名字或昵称"
-git config user.email "你的GitHub注册邮箱"
 git checkout dev
+
+# 推荐配全局 user.name/email（一次配，所有仓库都用）
+git config --global user.name "你的真实名字或昵称"
+git config --global user.email "你的GitHub注册邮箱"
+git config --global --list   # 验证
+
+# 如果不想配全局, 把 --global 去掉就只对本仓库生效
 ```
 
 ## Step 4 · 用 Unity 打开项目（5 分钟）
@@ -128,17 +133,6 @@ git checkout -b experimental/synty-import
 # 失败：git checkout dev && git branch -D experimental/synty-import
 ```
 
-## 团队分工建议
-
-| 角色 | 负责范围 | 主要改的文件 |
-|------|---------|------------|
-| 主程 | 网络 / 事件总线 / 核心架构 | `Assets/Scripts/Core/*` |
-| 关卡 | Scenes / Prefab / 关卡数据 | `Assets/Scenes/*`, `Assets/Prefabs/*` |
-| 美术 | 模型 / Sprite / 材质 | `Assets/Art/*` |
-| UI/音 | UI Prefab / 音频 | `Assets/UI/*`, `Assets/Audio/*` |
-
-**铁律**：不要两个人同时改同一个 `.unity` 场景文件！要改先在群里喊一声。
-
 ## 出问题时怎么办
 
 | 症状 | 怎么救 |
@@ -150,21 +144,48 @@ git checkout -b experimental/synty-import
 | Unity 一直转圈 | 关掉 Unity，删除 `Library/` 目录，重新打开会重新生成（10 分钟） |
 | 不知道发生了什么 | `git reflog` 看历史，`git reset --hard <hash>` 回退到任意时刻 |
 
-## 关键时间节点
+## 关键时间节点（v2 关卡设计）
 
 | 节点 | 时间 | 必须达成 |
 |------|------|---------|
-| T+6h | 5/2 03:00 | 联网双人胶囊体跑通 |
-| T+18h | 5/2 18:00 | 第 1 关《种树》闭环 |
-| T+30h | 5/3 06:00 | 第 2 关《开关》闭环 |
-| T+40h | 5/3 14:00 | 美术整合完成 |
-| T+44h | 5/3 17:00 | 必须开始打包 |
+| T+6h | 5/2 上午 | 联网双人胶囊体跑通 |
+| T+18h | 5/2 下午 | 第 1 关《种树》闭环（过去 → 未来） |
+| T+30h | 5/3 凌晨 | 第 2 关《时空信件》闭环（未来 → 过去） |
+| T+38h | 5/3 上午 | 第 3 关《镜像》闭环（双向融合） |
+| T+40h | 5/3 中午 | 美术整合完成 |
+| T+44h | 5/3 下午 | 必须开始打包 |
 | **DDL** | **5/3 19:00** | **itch.io 提交** |
 
-## 完整策划见
+> 三关分别展示**三种不同的时空交互方向**，详见 `docs/PLAN.md` 附录 R。
+> 每关都有**箱庭版（理想）+ 脚本版（降级保底）**两套方案，详见附录 R.7。
 
-- [README.md](./README.md) — 项目简介 + Git 工作流
-- 主 Plan 文档（在主程本地）：`Future Hero Quest.md` — 包含完整玩法/架构/关卡设计/回退方案
+## 必读文档（按优先级）
+
+| 优先 | 文档 | 用时 | 用途 |
+|------|------|------|------|
+| 🔥 | [`README.md`](./README.md) | 3 分钟 | 项目简介 + Git 工作流 |
+| 🔥 | [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | 10 分钟 | **技术架构总览**（程序必读） |
+| ⭐ | [`docs/PLAN.md`](./docs/PLAN.md) 附录 R | 5 分钟 | 三关具体设计（v2 双向版） |
+| ⭐ | [`docs/PLAN.md`](./docs/PLAN.md) 附录 R.7 | 3 分钟 | 箱庭/脚本降级方案 |
+| 📖 | [`docs/PLAN.md`](./docs/PLAN.md) 全文 | 30-60 分钟 | 完整设计（按需精读，不要一次读完） |
+| 📖 | [`docs/README.md`](./docs/README.md) | 1 分钟 | 文档目录导航 |
+
+## 团队角色与脚本所有权
+
+参考 `docs/ARCHITECTURE.md` 的"代码组织"章节，明确每个目录由谁主要维护。简单说：
+
+| 角色 | 主要负责 | 主要改的目录 |
+|------|---------|------------|
+| 主程 (zippear-mo) | 网络 / 事件总线 / 核心架构 | `Assets/Scripts/Core/`、`Assets/Scripts/Players/` |
+| 关卡程序 | 谜题逻辑 / 关卡数据 | `Assets/Scripts/Puzzle/`、`Assets/Scripts/Level/`、`Assets/ScriptableObjects/` |
+| 美术 + 场景 | 模型 / Sprite / 场景搭建 | `Assets/Art/*`、`Assets/Scenes/*`、`Assets/Prefabs/*` |
+| UI + 音频 | UI Prefab / 音频导入 | `Assets/Scripts/UI/`、`Assets/UI/`、`Assets/Audio/` |
+
+### ⚠️ 三条铁律
+
+1. **不要两个人同时改同一个 `.unity` 场景文件！** 要改先在群里喊一声（YAML 冲突极难合）
+2. **commit message 用英文 + 前缀**（`feat:` / `fix:` / `art:` / `level:` / `chore:` / `docs:`）
+3. **每天至少 push 2 次**（早会前 + 睡前），不要本地憋大改
 
 ## 致谢
 
