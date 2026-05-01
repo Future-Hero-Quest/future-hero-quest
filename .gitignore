@@ -1,0 +1,86 @@
+# Unity generated
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# MemoryCaptures
+[Mm]emoryCaptures/
+
+# Recordings
+[Rr]ecordings/
+
+# Asset Store Tools
+# /[Aa]ssets/AssetStoreTools*
+
+# Rider
+[Aa]ssets/Plugins/Editor/JetBrains*
+
+# Visual Studio
+.vs/
+
+# Gradle
+.gradle/
+
+# Auto-generated solution and project files
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity meta files
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# Unity crash logs
+sysinfo.txt
+
+# Builds
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.exe
+
+# Crashlytics
+crashlytics-build.properties
+
+# Addressables
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+
+# Streaming Assets
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Photon AppID 不要提交（如直接写在文件里）
+# Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerSettings.asset
+
+# Cursor / VSCode 用户配置（可选，按需开启）
+# .cursor/
+# .vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local secrets
+.env
+.env.local
+secrets.json
