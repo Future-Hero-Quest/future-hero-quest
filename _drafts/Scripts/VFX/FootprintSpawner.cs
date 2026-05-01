@@ -43,7 +43,7 @@ namespace FutureHeroQuest.VFX
                 _lastPos = transform.position;
                 if (TimelineEventBus.Instance != null)
                 {
-                    TimelineEventBus.Instance.SendEvent(EventKind.Footprint, "footprint", transform.position);
+                    TimelineEventBus.Instance.SendPastEvent(EventKind.Footprint, "footprint", transform.position);
                 }
             }
         }

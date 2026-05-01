@@ -5,12 +5,12 @@ using UnityEngine;
 namespace FutureHeroQuest.Puzzle
 {
     /// <summary>
-    /// 可被改写物体基类。所有"过去事件 -> 未来变化"的物体都继承自这里。
-    /// 未来玩家的物体在 OnEnable 订阅 TimelineEventBus，收到 targetId 匹配的事件时切换状态。
-    /// 过去玩家的物体则负责发出事件（通过 SendChangeEvent）。
+    /// 可被改写物体基类（v2 · 双向版本）。
+    /// 收到 targetId 匹配且方向匹配的事件时切换状态。
     ///
-    /// 状态切换通过半透明叠加（A 档·30 分钟实现）：
-    /// initialState alpha 1->0，changedState alpha 0->1，0.5s 完成。
+    /// v2 变化:
+    /// - 增加 respondsToDirection 字段, 决定本物体响应哪个方向的事件
+    /// - 默认 PastToFuture (兼容 v1 第 1 关), 第 2 关用 FutureToPast, 第 3 关用 Bidirectional
     /// </summary>
     public abstract class PuzzleObject : MonoBehaviour
     {
@@ -20,6 +20,9 @@ namespace FutureHeroQuest.Puzzle
 
         [Tooltip("此物体响应的事件类型")]
         [SerializeField] protected EventKind respondsTo;
+
+        [Tooltip("此物体响应的事件方向（决定哪个时空的物体会切换）")]
+        [SerializeField] protected EventDirection respondsToDirection = EventDirection.PastToFuture;
 
         [Header("视觉切换")]
         [SerializeField] protected GameObject initialStateRoot;
@@ -54,17 +57,22 @@ namespace FutureHeroQuest.Puzzle
             if (evt.Kind != respondsTo) return;
             if (evt.TargetId != targetId) return;
             if (_hasChanged) return;
+            if (!IsRoleMatchedForResponse(evt.Direction)) return;
 
             _hasChanged = true;
             StartCoroutine(SwitchToChangedState(evt));
         }
 
+        protected virtual bool IsRoleMatchedForResponse(EventDirection eventDir)
+        {
+            if (respondsToDirection != eventDir) return false;
+            return TimelineEventBus.ShouldRespondTo(eventDir);
+        }
+
         protected virtual IEnumerator SwitchToChangedState(TimelineEvent evt)
         {
             if (transitionSfx != null)
-            {
                 AudioSource.PlayClipAtPoint(transitionSfx, transform.position);
-            }
 
             float t = 0f;
             while (t < fadeDuration)
@@ -107,14 +115,12 @@ namespace FutureHeroQuest.Puzzle
                 {
                     if (mat.HasProperty("_BaseColor"))
                     {
-                        var c = mat.GetColor("_BaseColor");
-                        c.a = a;
+                        var c = mat.GetColor("_BaseColor"); c.a = a;
                         mat.SetColor("_BaseColor", c);
                     }
                     else if (mat.HasProperty("_Color"))
                     {
-                        var c = mat.GetColor("_Color");
-                        c.a = a;
+                        var c = mat.GetColor("_Color"); c.a = a;
                         mat.SetColor("_Color", c);
                     }
                 }
@@ -128,7 +134,7 @@ namespace FutureHeroQuest.Puzzle
                 Debug.LogError($"[{nameof(PuzzleObject)}] TimelineEventBus is not ready.");
                 return;
             }
-            TimelineEventBus.Instance.SendEvent(respondsTo, targetId, payload);
+            TimelineEventBus.Instance.SendEvent(respondsTo, respondsToDirection, targetId, payload);
         }
     }
 }
