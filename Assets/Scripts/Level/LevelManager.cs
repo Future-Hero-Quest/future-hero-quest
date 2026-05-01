@@ -23,12 +23,19 @@ namespace FutureHeroQuest.Level
         [SerializeField] private string nextLevelScene;
 
         private bool _completed;
+        private bool _completionRequested;
+        private bool _resetRequested;
         private readonly HashSet<string> _changedTargetIds = new HashSet<string>();
 
         public LevelData CurrentLevelData => levelData;
 
         private void Awake()
         {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
             Instance = this;
         }
 
@@ -36,8 +43,18 @@ namespace FutureHeroQuest.Level
         {
             if (levelData != null)
             {
+                levelData.SanitizeSerializedState();
+                if (!levelData.TryValidateForRuntime(out string validationMessage))
+                {
+                    Debug.LogWarning($"[LevelManager] LevelData validation warning: {validationMessage}", levelData);
+                }
+
                 Random.InitState(levelData.randomSeed);
                 Debug.Log($"[LevelManager] Loaded {levelData.displayName} with seed {levelData.randomSeed}");
+            }
+            else
+            {
+                Debug.LogWarning("[LevelManager] No LevelData assigned; completion conditions are disabled.", this);
             }
 
             if (TimelineEventBus.Instance != null)
@@ -57,16 +74,16 @@ namespace FutureHeroQuest.Level
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.R) && PhotonNetwork.IsMasterClient)
+            if (Input.GetKeyDown(KeyCode.R))
             {
-                photonView.RPC(nameof(RPC_ResetLevel), RpcTarget.AllViaServer);
+                RequestResetLevel();
             }
         }
 
         private void HandleEventForCompletion(TimelineEvent evt)
         {
-            if (_completed) return;
-            _changedTargetIds.Add(evt.TargetId);
+            if (_completed || _completionRequested) return;
+            if (!string.IsNullOrEmpty(evt.TargetId)) _changedTargetIds.Add(evt.TargetId);
 
             if (!PhotonNetwork.IsMasterClient) return;
             if (levelData == null) return;
@@ -75,13 +92,11 @@ namespace FutureHeroQuest.Level
             switch (levelData.completeCondition)
             {
                 case LevelData.LevelCompleteCondition.AllPuzzlesChanged:
-                    var puzzles = FindObjectsOfType<PuzzleObject>();
-                    int total = puzzles.Length;
-                    int changed = 0;
-                    foreach (var p in puzzles) if (p.HasChanged) changed++;
-                    conditionMet = total > 0 && changed >= total;
+                    conditionMet = AreRequiredPuzzleTargetsChanged();
                     break;
                 case LevelData.LevelCompleteCondition.FuturePlayerReachZone:
+                    conditionMet = !string.IsNullOrEmpty(levelData.targetIdRequired)
+                        && _changedTargetIds.Contains(levelData.targetIdRequired);
                     break;
                 case LevelData.LevelCompleteCondition.CustomScript:
                     break;
@@ -92,7 +107,36 @@ namespace FutureHeroQuest.Level
 
         public void MarkLevelComplete()
         {
-            if (!PhotonNetwork.IsMasterClient || _completed) return;
+            if (_completed || _completionRequested) return;
+
+            if (PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient)
+            {
+                photonView.RPC(nameof(RPC_RequestLevelComplete), RpcTarget.MasterClient);
+                return;
+            }
+
+            CompleteFromMaster();
+        }
+
+        [PunRPC]
+        private void RPC_RequestLevelComplete(PhotonMessageInfo info)
+        {
+            if (!PhotonNetwork.IsMasterClient) return;
+            Debug.Log($"[LevelManager] Level complete requested by actor #{info.Sender?.ActorNumber}");
+            CompleteFromMaster();
+        }
+
+        private void CompleteFromMaster()
+        {
+            if (_completed || _completionRequested) return;
+            _completionRequested = true;
+
+            if (!PhotonNetwork.InRoom)
+            {
+                RPC_LevelComplete();
+                return;
+            }
+
             photonView.RPC(nameof(RPC_LevelComplete), RpcTarget.AllViaServer);
         }
 
@@ -101,9 +145,10 @@ namespace FutureHeroQuest.Level
         {
             if (_completed) return;
             _completed = true;
+            _completionRequested = true;
             Debug.Log($"[LevelManager] Level completed: {levelData?.displayName}");
 
-            if (PhotonNetwork.IsMasterClient && !string.IsNullOrEmpty(nextLevelScene))
+            if ((!PhotonNetwork.InRoom || PhotonNetwork.IsMasterClient) && !string.IsNullOrEmpty(nextLevelScene))
             {
                 Invoke(nameof(LoadNext), 3.0f);
             }
@@ -111,16 +156,96 @@ namespace FutureHeroQuest.Level
 
         private void LoadNext()
         {
-            PhotonNetwork.LoadLevel(nextLevelScene);
+            if (PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient) return;
+            if (string.IsNullOrEmpty(nextLevelScene)) return;
+
+            if (PhotonNetwork.InRoom)
+                PhotonNetwork.LoadLevel(nextLevelScene);
+            else
+                SceneManager.LoadScene(nextLevelScene);
+        }
+
+        public void RequestResetLevel()
+        {
+            if (_resetRequested) return;
+
+            if (PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient)
+            {
+                photonView.RPC(nameof(RPC_RequestResetLevel), RpcTarget.MasterClient);
+                return;
+            }
+
+            ResetFromMaster();
         }
 
         [PunRPC]
-        private void RPC_ResetLevel()
+        private void RPC_RequestResetLevel(PhotonMessageInfo info)
+        {
+            if (!PhotonNetwork.IsMasterClient) return;
+            Debug.Log($"[LevelManager] Reset requested by actor #{info.Sender?.ActorNumber}");
+            ResetFromMaster();
+        }
+
+        private void ResetFromMaster()
+        {
+            if (_resetRequested) return;
+            _resetRequested = true;
+
+            if (!PhotonNetwork.InRoom)
+            {
+                RPC_PrepareResetLevel();
+                LoadCurrentScene();
+                return;
+            }
+
+            photonView.RPC(nameof(RPC_PrepareResetLevel), RpcTarget.AllViaServer);
+
+            if (PhotonNetwork.IsMasterClient)
+            {
+                LoadCurrentScene();
+            }
+        }
+
+        [PunRPC]
+        private void RPC_PrepareResetLevel()
         {
             if (TimelineEventBus.Instance != null) TimelineEventBus.Instance.ClearHistory();
             _completed = false;
+            _completionRequested = false;
             _changedTargetIds.Clear();
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            CancelInvoke(nameof(LoadNext));
+        }
+
+        private void LoadCurrentScene()
+        {
+            string activeScene = SceneManager.GetActiveScene().name;
+            if (PhotonNetwork.InRoom)
+                PhotonNetwork.LoadLevel(activeScene);
+            else
+                SceneManager.LoadScene(activeScene);
+        }
+
+        private bool AreRequiredPuzzleTargetsChanged()
+        {
+            if (!string.IsNullOrEmpty(levelData.targetIdRequired))
+                return _changedTargetIds.Contains(levelData.targetIdRequired);
+
+            var requiredTargetIds = new HashSet<string>();
+            var puzzles = FindObjectsByType<PuzzleObject>(FindObjectsInactive.Exclude);
+            foreach (var puzzle in puzzles)
+            {
+                if (!string.IsNullOrEmpty(puzzle.TargetId))
+                    requiredTargetIds.Add(puzzle.TargetId);
+            }
+
+            if (requiredTargetIds.Count == 0) return false;
+
+            foreach (string targetId in requiredTargetIds)
+            {
+                if (!_changedTargetIds.Contains(targetId)) return false;
+            }
+
+            return true;
         }
     }
 }

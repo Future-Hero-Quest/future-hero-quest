@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace FutureHeroQuest.Level
@@ -9,9 +10,13 @@ namespace FutureHeroQuest.Level
     /// 关卡场景通过 LevelManager 引用并消费此数据。
     /// </summary>
     [CreateAssetMenu(fileName = "LevelData_Lvl01", menuName = "FutureHero/LevelData", order = 0)]
-    public class LevelData : ScriptableObject
+    public class LevelData : ScriptableObject, ISerializationCallbackReceiver
     {
+        private const int DefaultRandomSeed = 12345;
+        private const float MinPassiveHintSeconds = 5f;
+
         [Header("基本信息")]
+        [Min(1)]
         public int levelIndex = 1;
         public string displayName = "种树";
         public string sceneName = "Level01_Tree";
@@ -21,13 +26,14 @@ namespace FutureHeroQuest.Level
         public string futureDateLabel = "2026 年 4 月 15 日";
 
         [Header("种子(确定性随机用)")]
-        public int randomSeed = 12345;
+        public int randomSeed = DefaultRandomSeed;
 
         [Header("台词配置")]
         [TextArea(1, 3)] public string[] pastDialogue;
         [TextArea(1, 3)] public string[] futureDialogue;
 
         [Header("被动提示(防卡死)")]
+        [Min(MinPassiveHintSeconds)]
         public float passiveHintAfterSeconds = 300f;
         [TextArea(1, 3)] public string passiveHintForFuture = "你能找找有没有花圃？";
         [TextArea(1, 3)] public string passiveHintForPast = "看看有没有大树挡路？";
@@ -41,6 +47,81 @@ namespace FutureHeroQuest.Level
             FuturePlayerReachZone,
             AllPuzzlesChanged,
             CustomScript,
+        }
+
+        public bool RequiresTargetId => completeCondition == LevelCompleteCondition.FuturePlayerReachZone;
+
+        public void OnBeforeSerialize()
+        {
+            SanitizeSerializedState();
+        }
+
+        public void OnAfterDeserialize()
+        {
+            SanitizeSerializedState();
+        }
+
+        private void OnEnable()
+        {
+            SanitizeSerializedState();
+        }
+
+        private void OnValidate()
+        {
+            SanitizeSerializedState();
+        }
+
+        public void SanitizeSerializedState()
+        {
+            if (levelIndex < 1) levelIndex = 1;
+            if (passiveHintAfterSeconds < MinPassiveHintSeconds)
+                passiveHintAfterSeconds = MinPassiveHintSeconds;
+            if (randomSeed == 0) randomSeed = DefaultRandomSeed;
+
+            displayName = TrimOrFallback(displayName, $"Level {levelIndex}");
+            sceneName = TrimOrFallback(sceneName, $"Level{levelIndex:00}");
+            pastDateLabel = TrimOrFallback(pastDateLabel, "1996");
+            futureDateLabel = TrimOrFallback(futureDateLabel, "2026");
+            passiveHintForFuture = TrimOrFallback(passiveHintForFuture, "先观察未来有什么变化。");
+            passiveHintForPast = TrimOrFallback(passiveHintForPast, "先观察过去有什么可操作物。");
+            targetIdRequired = targetIdRequired?.Trim() ?? string.Empty;
+
+            pastDialogue = SanitizeDialogueArray(pastDialogue);
+            futureDialogue = SanitizeDialogueArray(futureDialogue);
+        }
+
+        public bool TryValidateForRuntime(out string message)
+        {
+            SanitizeSerializedState();
+
+            var issues = new List<string>();
+            if (string.IsNullOrEmpty(sceneName))
+                issues.Add("sceneName is empty");
+            if (RequiresTargetId && string.IsNullOrEmpty(targetIdRequired))
+                issues.Add($"{completeCondition} requires targetIdRequired");
+
+            message = string.Join("; ", issues);
+            return issues.Count == 0;
+        }
+
+        private static string TrimOrFallback(string value, string fallback)
+        {
+            string trimmed = value?.Trim();
+            return string.IsNullOrEmpty(trimmed) ? fallback : trimmed;
+        }
+
+        private static string[] SanitizeDialogueArray(string[] source)
+        {
+            if (source == null || source.Length == 0) return Array.Empty<string>();
+
+            var cleaned = new List<string>(source.Length);
+            foreach (string line in source)
+            {
+                string trimmed = line?.Trim();
+                if (!string.IsNullOrEmpty(trimmed)) cleaned.Add(trimmed);
+            }
+
+            return cleaned.ToArray();
         }
     }
 }
