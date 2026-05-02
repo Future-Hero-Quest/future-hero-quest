@@ -6,7 +6,7 @@ using UnityEngine;
 /// When the player interacts, instead of just toggling GameObjects/Colliders,
 /// it triggers a Temporal Physics Projection via PastFutureTimelineController.
 /// The projection result is then applied to the Future Sub Scene.
-/// 
+///
 /// Falls back to the original OutlineInteractable behaviour if no
 /// PastFutureTimelineController is found in the scene.
 /// </summary>

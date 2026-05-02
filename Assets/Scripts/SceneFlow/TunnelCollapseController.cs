@@ -3,13 +3,13 @@ using UnityEngine;
 
 /// <summary>
 /// Controls the tunnel collapse mechanic for Scene02_MountainTunnel.
-/// 
+///
 /// In the outline prototype, this was implemented as simple active-toggle placeholders.
 /// This upgraded version integrates with Temporal Physics Toolkit:
 /// - When a node is "wired" (interacted), it triggers a projection via PastFutureTimelineController
 /// - The projection simulates the collapse in a temporal physics scene
 /// - The result is applied to the future view
-/// 
+///
 /// For the outline prototype phase, it still supports the original active-toggle fallback
 /// so the scene remains playable without the full Temporal Physics Toolkit runtime.
 /// </summary>

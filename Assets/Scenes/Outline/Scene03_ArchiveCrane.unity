@@ -702,7 +702,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 69919cd97961a264c973f311e7e82c58, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FutureHeroQuest.SceneFlow.OutlineInteractable
   interactKey: 101
   interactRadius: 1.8
@@ -853,7 +853,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fcd978edb8a474b4dbe4b423ae8e9977, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FutureHeroQuest.SceneFlow.LevelBoundaryTransition
   nextSceneName: Scene04_FinalRewrite
   nextScenePath: Assets/Scenes/Outline/Scene04_FinalRewrite.unity
@@ -1162,7 +1162,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd7518b0e9e518644b72c5f34b88c2d5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FutureHeroQuest.SceneFlow.LevelTransitionAnchor
   anchorId: Anchor_Exit_CorePassage
   note: Exit toward final rewrite
@@ -2779,7 +2779,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 69919cd97961a264c973f311e7e82c58, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FutureHeroQuest.SceneFlow.OutlineInteractable
   interactKey: 101
   interactRadius: 1.8
@@ -2991,7 +2991,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48d5534dcd2b2f44da97352362413fb9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FutureHeroQuest.SceneFlow.OutlineSceneFlowController
   fadeSeconds: 0.24
   blackHoldSeconds: 0.12
@@ -3262,7 +3262,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.StandaloneInputModule
   m_SendPointerHoverToParent: 1
   m_HorizontalAxis: Horizontal
@@ -3282,7 +3282,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
@@ -3456,7 +3456,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd7518b0e9e518644b72c5f34b88c2d5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FutureHeroQuest.SceneFlow.LevelTransitionAnchor
   anchorId: Anchor_Entry_ArchiveIronDoor
   note: Entry from mountain tunnel
@@ -4177,7 +4177,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f06fb3f0615942548b934c4967f570f2, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FutureHeroQuest.SceneFlow.OutlineLocalPlayerController
   moveSpeed: 4
   rotateSpeed: 720
