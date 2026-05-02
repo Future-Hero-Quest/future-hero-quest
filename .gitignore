@@ -85,3 +85,6 @@ desktop.ini
 .env
 .env.local
 secrets.json
+
+# Local Unity MCP editor settings
+ProjectSettings/McpUnitySettings.json
