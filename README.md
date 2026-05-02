@@ -6,11 +6,13 @@
 ![Unity](https://img.shields.io/badge/Unity-6.4.2f1-black)
 ![Photon PUN2](https://img.shields.io/badge/Networking-Photon%20PUN2-blue)
 ![Platform](https://img.shields.io/badge/Target-Windows-2ea44f)
-![Status](https://img.shields.io/badge/Status-v1.0%20Accepted-brightgreen)
+![Status](https://img.shields.io/badge/Status-v1.0%20Accepted%20%2B%20v1.2%20Progress-brightgreen)
 
 **Future Hero Quest** 是一个黑客松项目：一名玩家位于 1996 年，另一名玩家位于 2026 年。两人看到的是同一地点在不同时代的状态，需要通过沟通、观察反馈、触发机关，把过去的改变传递到未来。
 
 `v1.0 Chapter 1《都市怪谈篇》` 是 Hackathon Submission Cut：三个紧凑关卡、Windows 首发、Photon 双人联网、语义事件驱动的时间线同步。
+
+Current `main` also carries a v1.2 progress snapshot: first-person mouse-look movement, Scene02 temporal fracture playback, outline scenes, and minimal audio/fog/emission polish. The accepted downloadable package remains the v1.0 zip until a new build is verified.
 
 ## Release Status
 
@@ -97,6 +99,7 @@ For itch.io, upload a zip of the full `NetworkDemoWin` folder, not only the `.ex
 | [`docs/ITCH_PAGE.md`](docs/ITCH_PAGE.md) | itch.io page draft and upload checklist |
 | [`docs/THREAD_PLAN.md`](docs/THREAD_PLAN.md) | Release-phase thread plan |
 | [`docs/CONTENT_ROADMAP.md`](docs/CONTENT_ROADMAP.md) | Post-v1.0 roadmap |
+| [`docs/DEPENDENCIES.md`](docs/DEPENDENCIES.md) | Unity, package, Photon, and large-asset setup notes |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Technical architecture |
 | [`docs/thread-prompts/`](docs/thread-prompts/) | Thread handoff prompts |
 
