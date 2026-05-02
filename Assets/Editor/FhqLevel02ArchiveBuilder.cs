@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using FutureHeroQuest.Core;
 using FutureHeroQuest.Level;
@@ -60,7 +59,7 @@ namespace FutureHeroQuest.EditorTools
             CreateEventSystem();
 
             EditorSceneManager.SaveScene(scene, ScenePath);
-            AddSceneToBuildSettings(ScenePath);
+            FhqBuildSceneUtility.ApplyFinalBuildSettings();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene(ScenePath);
@@ -248,12 +247,14 @@ namespace FutureHeroQuest.EditorTools
         private static void CreateLevelManager(LevelData levelData)
         {
             var levelManager = new GameObject("LevelManager");
-            levelManager.AddComponent<PhotonView>();
+            var photonView = levelManager.AddComponent<PhotonView>();
+            photonView.sceneViewId = 2;
             var manager = levelManager.AddComponent<LevelManager>();
             var serialized = new SerializedObject(manager);
             serialized.FindProperty("levelData").objectReferenceValue = levelData;
-            serialized.FindProperty("nextLevelScene").stringValue = "";
+            serialized.FindProperty("nextLevelScene").stringValue = "Level03_ClubRoom";
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(photonView);
         }
 
         private static void CreatePlayerSpawner()
@@ -468,18 +469,6 @@ namespace FutureHeroQuest.EditorTools
             if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
             EditorUtility.SetDirty(material);
             return material;
-        }
-
-        private static void AddSceneToBuildSettings(string scenePath)
-        {
-            var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
-            foreach (EditorBuildSettingsScene scene in scenes)
-            {
-                if (scene.path == scenePath) return;
-            }
-
-            scenes.Add(new EditorBuildSettingsScene(scenePath, true));
-            EditorBuildSettings.scenes = scenes.ToArray();
         }
 
         private static void CreateEventSystem()

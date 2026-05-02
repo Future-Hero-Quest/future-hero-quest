@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using FutureHeroQuest.Core;
 using FutureHeroQuest.Level;
@@ -17,9 +16,7 @@ namespace FutureHeroQuest.EditorTools
     /// </summary>
     public static class FhqLevel01BridgeBuilder
     {
-        private const string LauncherScenePath = "Assets/Scenes/Launcher.unity";
         private const string BridgeScenePath = "Assets/Scenes/Level01_Bridge.unity";
-        private const string TreeScenePath = "Assets/Scenes/Level01_Tree.unity";
         private const string LevelDataPath = "Assets/LevelData/LevelData_Level01Bridge.asset";
 
         [MenuItem("FHQ/Build Level 1 Bridge Loop")]
@@ -127,7 +124,7 @@ namespace FutureHeroQuest.EditorTools
             var manager = managerGo.AddComponent<LevelManager>();
             var managerSo = new SerializedObject(manager);
             managerSo.FindProperty("levelData").objectReferenceValue = levelData;
-            managerSo.FindProperty("nextLevelScene").stringValue = string.Empty;
+            managerSo.FindProperty("nextLevelScene").stringValue = "Level02_Archive";
             managerSo.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(photonView);
         }
@@ -391,17 +388,7 @@ namespace FutureHeroQuest.EditorTools
 
         private static void UpdateBuildSettings()
         {
-            var scenes = new List<EditorBuildSettingsScene>();
-            AddBuildSceneIfExists(scenes, LauncherScenePath);
-            AddBuildSceneIfExists(scenes, BridgeScenePath);
-            AddBuildSceneIfExists(scenes, TreeScenePath);
-            EditorBuildSettings.scenes = scenes.ToArray();
-        }
-
-        private static void AddBuildSceneIfExists(List<EditorBuildSettingsScene> scenes, string path)
-        {
-            if (File.Exists(path))
-                scenes.Add(new EditorBuildSettingsScene(path, true));
+            FhqBuildSceneUtility.ApplyFinalBuildSettings();
         }
     }
 }

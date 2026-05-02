@@ -538,7 +538,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FutureHeroQuest.Level.LevelManager
   levelData: {fileID: 11400000, guid: c59f80e566a9d504bb6d82f487b0ce1c, type: 2}
-  nextLevelScene: 
+  nextLevelScene: Level03_ClubRoom
 --- !u!114 &195049979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -558,7 +558,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents: []
-  sceneViewId: 0
+  sceneViewId: 2
   InstantiationId: 0
   isRuntimeInstantiated: 0
 --- !u!4 &195049980

@@ -4128,7 +4128,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FutureHeroQuest.Level.LevelManager
   levelData: {fileID: 11400000, guid: d3c846526eeef1b4ababb85808d8b6f8, type: 2}
-  nextLevelScene:
+  nextLevelScene: Level02_Archive
 --- !u!114 &1803924544
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using FutureHeroQuest.Core;
 using FutureHeroQuest.Level;
 using FutureHeroQuest.Players;
@@ -44,7 +43,7 @@ namespace FutureHeroQuest.EditorTools
             CreateEventSystem();
 
             EditorSceneManager.SaveScene(scene, ScenePath);
-            AddSceneToBuildSettings(ScenePath);
+            FhqBuildSceneUtility.ApplyFinalBuildSettings();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
@@ -291,16 +290,20 @@ namespace FutureHeroQuest.EditorTools
             var levelData = CreateOrUpdateLevelData();
 
             var levelManagerGo = new GameObject("LevelManager");
-            levelManagerGo.AddComponent<PhotonView>();
+            var levelPhotonView = levelManagerGo.AddComponent<PhotonView>();
+            levelPhotonView.sceneViewId = 2;
             var levelManager = levelManagerGo.AddComponent<LevelManager>();
             var levelManagerSo = new SerializedObject(levelManager);
             levelManagerSo.FindProperty("levelData").objectReferenceValue = levelData;
             levelManagerSo.FindProperty("nextLevelScene").stringValue = string.Empty;
             levelManagerSo.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(levelPhotonView);
 
             var bus = new GameObject("TimelineEventBus");
-            bus.AddComponent<PhotonView>();
+            var busPhotonView = bus.AddComponent<PhotonView>();
+            busPhotonView.sceneViewId = 1;
             bus.AddComponent<TimelineEventBus>();
+            EditorUtility.SetDirty(busPhotonView);
 
             var store = new GameObject("SemanticStateStore");
             store.AddComponent<SemanticStateStore>();
@@ -551,13 +554,5 @@ namespace FutureHeroQuest.EditorTools
             }
         }
 
-        private static void AddSceneToBuildSettings(string scenePath)
-        {
-            var scenes = EditorBuildSettings.scenes.ToList();
-            if (scenes.Any(scene => scene.path == scenePath)) return;
-
-            scenes.Add(new EditorBuildSettingsScene(scenePath, true));
-            EditorBuildSettings.scenes = scenes.ToArray();
-        }
     }
 }
