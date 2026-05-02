@@ -13,7 +13,7 @@
 
 **Future Hero Quest** 是一个黑客松项目：一名玩家位于 1996 年，另一名玩家位于 2026 年。两人看到的是同一地点在不同时代的状态，需要通过沟通、观察反馈、触发机关，把过去的改变传递到未来。
 
-当前版本聚焦黑客松提交验收：三个紧凑关卡、Windows 首发、Photon 双人联网、语义事件驱动的时间线同步。`v1.0` 是 **Hackathon Submission Cut**，代表“能交、能玩、能展示概念”，不是项目内容的终点。
+当前版本聚焦黑客松提交验收：三个紧凑关卡、Windows 首发、Photon 双人联网、语义事件驱动的时间线同步。`v1.0《都市怪谈篇》` 是 **Hackathon Submission Cut**，代表“能交、能玩、能展示概念”，不是项目内容的终点。
 
 ---
 
@@ -25,6 +25,7 @@
 | 渲染管线 | Built-in |
 | 联网方案 | Photon PUN2 |
 | 目标平台 | Windows |
+| 当前篇章 | v1.0《都市怪谈篇》 |
 | 当前验收基线 | `origin/dev` |
 | 最后玩法集成 | `c4d742d` |
 | GitHub 首页 | `origin/main` 已同步中文门面与路线文档 |
@@ -36,7 +37,7 @@
 
 ```mermaid
 flowchart LR
-    V1["v1.0<br/>黑客松提交版"] --> V11["v1.1<br/>体验修正"]
+    V1["v1.0<br/>都市怪谈篇"] --> V11["v1.1<br/>体验修正"]
     V11 --> V15["v1.5<br/>完整短篇版"]
     V15 --> V2["v2.0<br/>扩展 Demo"]
     V2 --> V3["v3.0<br/>正式项目方向"]
@@ -44,28 +45,28 @@ flowchart LR
 
 | 阶段 | 目标 | 当前处理 |
 |---|---|---|
-| v1.0 · Hackathon Submission Cut | 可下载、可运行、双人可验收、页面可信 | DDL 前唯一发布目标 |
+| v1.0 · 都市怪谈篇 / Hackathon Submission Cut | 可下载、可运行、双人可验收、页面可信 | DDL 前唯一发布目标 |
 | v1.1 · Playability Patch | 目标提示、交互反馈、房间流程更清楚 | 提交后评估 |
 | v1.5 · Short Story Cut | 开场、结尾、角色身份、统一 UI/音频 | 提交后评估 |
 | v2.0 · Expanded Demo | 更多关卡、WebGL/Mac、更完整联网体验 | 提交后评估 |
 | v3.0 · Project Direction | 判断是否继续做成正式项目 | 提交后评估 |
 
-## 游戏流程
+## 《都市怪谈篇》流程
 
 ```mermaid
 flowchart LR
-    L["Launcher<br/>创建 / 加入房间"] --> B["第一关<br/>断桥修复"]
-    B --> A["第二关<br/>档案状态"]
-    A --> C["第三关<br/>社团活动室"]
+    L["Launcher<br/>创建 / 加入房间"] --> B["第一关<br/>断桥回声"]
+    B --> A["第二关<br/>314号档案"]
+    A --> C["第三关<br/>最后的社团室"]
     C --> S["Windows 提交包"]
 ```
 
-| 场景 | 协作点 | 验收重点 |
-|---|---|---|
-| `Launcher` | 创建 / 加入 Photon 房间 | 两个客户端进入同一房间 |
-| `Level01_Bridge` | 过去修桥，未来读取桥梁反馈 | 正确桥梁状态推进到第二关 |
-| `Level02_Archive` | 档案缺失 / 错误 / 正确状态 | Archive 314 解锁未来路径 |
-| `Level03_ClubRoom` | 台球结果驱动最终门锁 | 门锁打开并触发 `L3_Exit` |
+| 展示名 | 工程场景 | 协作点 | 验收重点 |
+|---|---|---|---|
+| Launcher | `Launcher` | 创建 / 加入 Photon 房间 | 两个客户端进入同一房间 |
+| 《断桥回声》 | `Level01_Bridge` | 过去修桥，未来读取桥梁反馈 | 正确桥梁状态推进到第二关 |
+| 《314号档案》 | `Level02_Archive` | 档案缺失 / 错误 / 正确状态 | Archive 314 解锁未来路径 |
+| 《最后的社团室》 | `Level03_ClubRoom` | 台球结果驱动最终门锁 | 门锁打开并触发 `L3_Exit` |
 
 Build Settings 只应包含以下四个场景：
 
@@ -80,9 +81,9 @@ Assets/Scenes/Level03_ClubRoom.unity
 
 - [x] v0.1 - Photon 双客户端胶囊体移动
 - [x] v0.2 - 语义时间线事件层
-- [x] v0.3 - 第一关断桥反馈闭环
-- [x] v0.4 - 第二关档案反馈闭环
-- [x] v0.5 - 第三关社团活动室反馈闭环
+- [x] v0.3 - L1《断桥回声》反馈闭环
+- [x] v0.4 - L2《314号档案》反馈闭环
+- [x] v0.5 - L3《最后的社团室》反馈闭环
 - [x] v0.6 - 美术 / 音频救援整合
 - [x] v0.7 - 修复构建菜单重写场景副作用
 - [x] v0.8 - Windows batchmode 构建通过
@@ -117,7 +118,7 @@ Assets/Scenes/Level03_ClubRoom.unity
 FHQ/Build Windows Network Demo
 ```
 
-当前构建菜单已改为直接使用最终四场景列表，不应再重新生成或重写 `Launcher.unity` / `Level01_Tree.unity`。
+当前构建菜单已改为直接使用最终四场景列表，不应再重新生成或重写 `Launcher.unity` / 旧验证场景 `Level01_Tree.unity`。
 
 从主 Unity 工作区构建时，预期最终包路径为：
 

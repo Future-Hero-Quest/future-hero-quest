@@ -118,10 +118,10 @@ git push
 ### 改 commit message 规范
 | 前缀 | 用法 | 示例 |
 |------|------|------|
-| `feat:` | 新功能 | `feat: 第一关种树触发器` |
+| `feat:` | 新功能 | `feat: 第一关断桥回声触发器` |
 | `fix:` | bug 修复 | `fix: 联网时角色穿模` |
 | `art:` | 美术资源 | `art: 导入 Synty 校园场景` |
-| `level:` | 关卡数据 | `level: 调整种树点位置` |
+| `level:` | 关卡数据 | `level: 调整断桥回声交互点` |
 | `chore:` | 杂活/配置 | `chore: 升级 Photon` |
 | `docs:` | 文档 | `docs: 更新 README` |
 
@@ -144,20 +144,19 @@ git checkout -b experimental/synty-import
 | Unity 一直转圈 | 关掉 Unity，删除 `Library/` 目录，重新打开会重新生成（10 分钟） |
 | 不知道发生了什么 | `git reflog` 看历史，`git reset --hard <hash>` 回退到任意时刻 |
 
-## 关键时间节点（v2 关卡设计）
+## 关键时间节点（v1.0《都市怪谈篇》）
 
 | 节点 | 时间 | 必须达成 |
 |------|------|---------|
 | T+6h | 5/2 上午 | 联网双人胶囊体跑通 |
-| T+18h | 5/2 下午 | 第 1 关《种树》闭环（过去 → 未来） |
-| T+30h | 5/3 凌晨 | 第 2 关《时空信件》闭环（未来 → 过去） |
-| T+38h | 5/3 上午 | 第 3 关《镜像》闭环（双向融合） |
+| T+18h | 5/2 下午 | 第 1 关《断桥回声》闭环 |
+| T+30h | 5/3 凌晨 | 第 2 关《314号档案》闭环 |
+| T+38h | 5/3 上午 | 第 3 关《最后的社团室》闭环 |
 | T+40h | 5/3 中午 | 美术整合完成 |
 | T+44h | 5/3 下午 | 必须开始打包 |
 | **DDL** | **5/3 19:00** | **itch.io 提交** |
 
-> 三关分别展示**三种不同的时空交互方向**，详见 `docs/PLAN.md` 附录 R。
-> 每关都有**箱庭版（理想）+ 脚本版（降级保底）**两套方案，详见附录 R.7。
+> 当前提交版三关以 `README.md` 和 `docs/THREAD_PLAN.md` 为准。旧 `PLAN.md` 中的早期关卡方案保留为历史参考。
 
 ## 必读文档（按优先级）
 
@@ -165,8 +164,8 @@ git checkout -b experimental/synty-import
 |------|------|------|------|
 | 🔥 | [`README.md`](./README.md) | 3 分钟 | 项目简介 + Git 工作流 |
 | 🔥 | [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | 10 分钟 | **技术架构总览**（程序必读） |
-| ⭐ | [`docs/PLAN.md`](./docs/PLAN.md) 附录 R | 5 分钟 | 三关具体设计（v2 双向版） |
-| ⭐ | [`docs/PLAN.md`](./docs/PLAN.md) 附录 R.7 | 3 分钟 | 箱庭/脚本降级方案 |
+| ⭐ | [`docs/THREAD_PLAN.md`](./docs/THREAD_PLAN.md) | 5 分钟 | 当前发布线程计划与里程碑 |
+| ⭐ | [`docs/CONTENT_ROADMAP.md`](./docs/CONTENT_ROADMAP.md) | 5 分钟 | v1.0 后内容方向 |
 | 📖 | [`docs/PLAN.md`](./docs/PLAN.md) 全文 | 30-60 分钟 | 完整设计（按需精读，不要一次读完） |
 | 📖 | [`docs/README.md`](./docs/README.md) | 1 分钟 | 文档目录导航 |
 

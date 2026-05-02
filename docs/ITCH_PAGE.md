@@ -2,20 +2,20 @@
 
 ## Title
 
-Future Hero Quest
+Future Hero Quest: 都市怪谈篇
 
 ## Tagline
 
-One player is in 1996. One player is in 2026. Solve the same timeline from opposite ends.
+One player is in 1996. One player is in 2026. Solve the same urban legend from opposite ends.
 
 ## Short Description
 
-A two-player online time puzzle demo. Communicate across 30 years, change the timeline, and clear three compact co-op rooms together.
+A two-player online time puzzle demo. Communicate across 30 years, change the timeline, and clear three compact rooms in the Urban Legend Chapter.
 
 ## Long Description
 
 ```text
-Future Hero Quest is a 2.5D online co-op puzzle demo built for a hackathon.
+Future Hero Quest: 都市怪谈篇 is a 2.5D online co-op puzzle demo built for a hackathon.
 
 One player becomes the Past. The other becomes the Future.
 You are separated by 30 years, but your worlds are still connected.
@@ -32,9 +32,9 @@ The result is a compact three-room demo about communication, timing, and trustin
 
 | Room | Theme | Co-op Moment |
 |---|---|---|
-| Level 01 Bridge | Broken bridge repair | Future reads the bridge outcome, Past chooses the repair |
-| Level 02 Archive | Missing archive file | Wrong and correct archive states change the Future path |
-| Level 03 Club Room | Billiards and final lock | Shot result drives the final unlock |
+| Echoes on the Broken Bridge / 《断桥回声》 | Broken bridge repair | Future reads the bridge outcome, Past chooses the repair |
+| Archive 314 / 《314号档案》 | Missing archive file | Wrong and correct archive states change the Future path |
+| The Last Club Room / 《最后的社团室》 | Billiards and final lock | Shot result drives the final unlock |
 
 ## How To Play
 
@@ -81,6 +81,6 @@ Detailed third-party notices are documented in `Assets/ThirdParty/README.md` and
 ## Upload Checklist
 
 - Upload a zip of the full `NetworkDemoWin` folder.
-- Include screenshots for Launcher, L1 Bridge, L2 Archive, L3 Club Room, and ideally a two-client view.
+- Include screenshots for Launcher, 《断桥回声》, 《314号档案》, 《最后的社团室》, and ideally a two-client view.
 - Do not upload Unity `Library/`, `Temp/`, `Logs/`, build cache, or Photon AppID.
 - Mention clearly that two players and internet access are required.
