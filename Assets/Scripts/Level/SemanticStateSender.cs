@@ -12,6 +12,8 @@ namespace FutureHeroQuest.Level
     public class SemanticStateSender : MonoBehaviour
     {
         private static readonly List<SemanticStateSender> ActiveSenders = new List<SemanticStateSender>();
+        private static int _consumedFrame = -1;
+        private static KeyCode _consumedKey = KeyCode.None;
 
         [Header("State")]
         [SerializeField] private EventKind eventKind = EventKind.SetSemanticState;
@@ -68,7 +70,7 @@ namespace FutureHeroQuest.Level
             bool isNearest = FindNearestAvailable(_localPlayer.position, interactKey) == this;
             SetPrompt(isNearest);
 
-            if (isNearest && Input.GetKeyDown(interactKey))
+            if (isNearest && Input.GetKeyDown(interactKey) && !WasConsumedThisFrame(interactKey))
             {
                 Send();
             }
@@ -81,6 +83,8 @@ namespace FutureHeroQuest.Level
             var store = SemanticStateStore.EnsureInstance();
             store.SendState(eventKind, direction, stateKey, stateValue, targetId, transform.position);
             _sent = true;
+            _consumedFrame = Time.frameCount;
+            _consumedKey = interactKey;
 
             SetPrompt(false);
             if (deactivateAfterSend != null)
@@ -146,6 +150,11 @@ namespace FutureHeroQuest.Level
             }
 
             return nearest;
+        }
+
+        private static bool WasConsumedThisFrame(KeyCode key)
+        {
+            return _consumedFrame == Time.frameCount && _consumedKey == key;
         }
 
         private void OnDrawGizmosSelected()
