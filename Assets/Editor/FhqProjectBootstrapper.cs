@@ -23,6 +23,7 @@ namespace FutureHeroQuest.EditorTools
     {
         private const string LauncherScenePath = "Assets/Scenes/Launcher.unity";
         private const string LevelScenePath = "Assets/Scenes/Level01_Tree.unity";
+        private const string BridgeLevelScenePath = "Assets/Scenes/Level01_Bridge.unity";
         private const string PastPrefabPath = "Assets/Prefabs/Resources/PastPlayer.prefab";
         private const string FuturePrefabPath = "Assets/Prefabs/Resources/FuturePlayer.prefab";
 
@@ -50,8 +51,10 @@ namespace FutureHeroQuest.EditorTools
             string output = Path.GetFullPath(Path.Combine(Application.dataPath, "../../FHQ-Workspace/build/NetworkDemoWin/FutureHeroQuest.exe"));
             Directory.CreateDirectory(Path.GetDirectoryName(output));
 
+            string firstLevelScenePath = File.Exists(BridgeLevelScenePath) ? BridgeLevelScenePath : LevelScenePath;
+
             var report = BuildPipeline.BuildPlayer(
-                new[] { LauncherScenePath, LevelScenePath },
+                new[] { LauncherScenePath, firstLevelScenePath },
                 output,
                 BuildTarget.StandaloneWindows64,
                 BuildOptions.Development);
@@ -80,11 +83,14 @@ namespace FutureHeroQuest.EditorTools
             CreatePlayerPrefab(FuturePrefabPath, "FuturePlayer", new Color(0.2f, 0.95f, 0.75f));
             CreateLauncherScene();
             CreateLevelScene();
-            EditorBuildSettings.scenes = new[]
+            var scenes = new List<EditorBuildSettingsScene>
             {
                 new EditorBuildSettingsScene(LauncherScenePath, true),
-                new EditorBuildSettingsScene(LevelScenePath, true)
             };
+            if (File.Exists(BridgeLevelScenePath))
+                scenes.Add(new EditorBuildSettingsScene(BridgeLevelScenePath, true));
+            scenes.Add(new EditorBuildSettingsScene(LevelScenePath, true));
+            EditorBuildSettings.scenes = scenes.ToArray();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene(LauncherScenePath);
@@ -166,7 +172,8 @@ namespace FutureHeroQuest.EditorTools
             network.AddComponent<NetworkManager>();
 
             var bus = new GameObject("TimelineEventBus");
-            bus.AddComponent<PhotonView>();
+            var busPhotonView = bus.AddComponent<PhotonView>();
+            busPhotonView.sceneViewId = 1;
             bus.AddComponent<TimelineEventBus>();
 
             CreateLauncherCanvas();
@@ -266,7 +273,8 @@ namespace FutureHeroQuest.EditorTools
             if (renderer != null) renderer.sharedMaterial = CreateMaterial("Ground_Mat", new Color(0.24f, 0.36f, 0.27f));
 
             var levelManager = new GameObject("LevelManager");
-            levelManager.AddComponent<PhotonView>();
+            var levelPhotonView = levelManager.AddComponent<PhotonView>();
+            levelPhotonView.sceneViewId = 2;
             levelManager.AddComponent<LevelManager>();
 
             var spawner = new GameObject("PlayerSpawner");

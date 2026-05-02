@@ -131,6 +131,7 @@ namespace FutureHeroQuest.Core
         private void HandleTimelineEvent(TimelineEvent evt)
         {
             if (!evt.HasSemanticState) return;
+            if (!TimelineEventBus.ShouldRespondTo(evt.Direction)) return;
             ApplyState(evt);
         }
 

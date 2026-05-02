@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Launcher.unity
     guid: 609e3293fb4fb694c960201af32c857d
   - enabled: 1
+    path: Assets/Scenes/Level01_Bridge.unity
+    guid: 0dfae6265b603d243948b70baf892ad6
+  - enabled: 1
     path: Assets/Scenes/Level01_Tree.unity
     guid: e080613dd2046d44984da1143e06ee82
   m_configObjects: {}

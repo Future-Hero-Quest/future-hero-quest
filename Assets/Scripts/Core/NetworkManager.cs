@@ -16,7 +16,7 @@ namespace FutureHeroQuest.Core
         public static NetworkManager Instance { get; private set; }
 
         public const string ROOM_NAME = "FutureHeroQuestRoom";
-        public const string FIRST_LEVEL = "Level01_Tree";
+        public const string FIRST_LEVEL = "Level01_Bridge";
 
         [SerializeField] private string gameVersion = "0.1.0";
 
