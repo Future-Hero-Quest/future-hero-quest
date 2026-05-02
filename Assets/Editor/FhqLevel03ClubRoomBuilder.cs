@@ -25,6 +25,7 @@ namespace FutureHeroQuest.EditorTools
             public GameObject FutureLockRoot;
             public GameObject DoorClosed;
             public GameObject DoorOpen;
+            public GameObject ExitPad;
             public GameObject ExitZone;
             public GameObject LockWaitingLamp;
             public GameObject LockReadyLamp;
@@ -191,7 +192,7 @@ namespace FutureHeroQuest.EditorTools
             CreateBallResultApplier(
                 parent,
                 "Pocket_3",
-                new[] { resultPocket3, pocket3Ball, doorRefs.FutureLockRoot, doorRefs.LockReadyLamp, doorRefs.DoorOpen, doorRefs.ExitZone },
+                new[] { resultPocket3, pocket3Ball, doorRefs.FutureLockRoot, doorRefs.LockReadyLamp, doorRefs.DoorOpen, doorRefs.ExitPad, doorRefs.ExitZone },
                 new[] { resultNone, resultPocket1, resultPocket2, pocket1Ball, pocket2Ball, doorRefs.LockWaitingLamp, doorRefs.DoorClosed });
         }
 
@@ -228,7 +229,11 @@ namespace FutureHeroQuest.EditorTools
             doorOpen.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
             doorOpen.SetActive(false);
 
-            var exitZone = CreateCube("ExitZone_L3_Exit", parent, new Vector3(6.85f, 0.08f, 0f), new Vector3(1.25f, 0.16f, 1.85f), materials["exit"], true);
+            var exitPad = CreateCube("ExitPad_L3_Exit_Visual", parent, new Vector3(5.35f, 0.02f, 0f), new Vector3(1.1f, 0.04f, 1.6f), materials["exit"], false);
+            exitPad.SetActive(false);
+            var exitZone = CreateCube("ExitZone_L3_Exit", parent, new Vector3(5.45f, 0.65f, 0f), new Vector3(1.4f, 1.3f, 2.1f), materials["exit"], true);
+            var exitRenderer = exitZone.GetComponent<MeshRenderer>();
+            if (exitRenderer != null) exitRenderer.enabled = false;
             var exitCollider = exitZone.GetComponent<BoxCollider>();
             exitCollider.isTrigger = true;
             var reachZone = exitZone.AddComponent<SemanticReachZone>();
@@ -243,7 +248,7 @@ namespace FutureHeroQuest.EditorTools
                 "LockState",
                 "Unlocked",
                 "L3_Lock",
-                new[] { doorOpen, lockReadyLamp, exitZone },
+                new[] { doorOpen, lockReadyLamp, exitPad, exitZone },
                 new[] { doorClosed, lockWaitingLamp },
                 null,
                 null);
@@ -253,6 +258,7 @@ namespace FutureHeroQuest.EditorTools
                 FutureLockRoot = lockRoot,
                 DoorClosed = doorClosed,
                 DoorOpen = doorOpen,
+                ExitPad = exitPad,
                 ExitZone = exitZone,
                 LockWaitingLamp = lockWaitingLamp,
                 LockReadyLamp = lockReadyLamp
