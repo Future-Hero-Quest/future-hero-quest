@@ -17,6 +17,8 @@ namespace FutureHeroQuest.Players
         [SerializeField] private string futurePrefabName = "FuturePlayer";
         [SerializeField] private Transform pastSpawnPoint;
         [SerializeField] private Transform futureSpawnPoint;
+        [SerializeField] private bool spawnOfflineWhenNoNetworkManager = true;
+        [SerializeField] private GameRole offlineRole = GameRole.Future;
 
         private bool _hasSpawned;
 
@@ -45,7 +47,15 @@ namespace FutureHeroQuest.Players
         {
             if (NetworkManager.Instance == null)
             {
-                Debug.LogError("[PlayerSpawner] NetworkManager not found.");
+                if (spawnOfflineWhenNoNetworkManager)
+                {
+                    SpawnOfflinePlayer();
+                }
+                else
+                {
+                    Debug.LogError("[PlayerSpawner] NetworkManager not found.");
+                }
+
                 yield break;
             }
 
@@ -77,20 +87,64 @@ namespace FutureHeroQuest.Players
             Debug.Log($"[PlayerSpawner] Spawned {prefabName} at {pos} for role {role}. QueueRunning={PhotonNetwork.IsMessageQueueRunning}");
         }
 
+        private void SpawnOfflinePlayer()
+        {
+            if (_hasSpawned)
+            {
+                return;
+            }
+
+            GameRole role = offlineRole;
+            string prefabName = role == GameRole.Past ? pastPrefabName : futurePrefabName;
+            Transform spawn = role == GameRole.Past ? pastSpawnPoint : futureSpawnPoint;
+            Vector3 pos = spawn != null ? spawn.position : Vector3.zero;
+            Quaternion rot = spawn != null ? spawn.rotation : Quaternion.identity;
+
+            if (TryReuseOrCleanOwnedPlayer(pos, rot))
+            {
+                _hasSpawned = true;
+                Debug.Log($"[PlayerSpawner] Reused offline player for role {role} at {pos}.");
+                return;
+            }
+
+            GameObject prefab = Resources.Load<GameObject>(prefabName);
+            if (prefab == null)
+            {
+                Debug.LogError($"[PlayerSpawner] Offline prefab not found in Resources: {prefabName}");
+                return;
+            }
+
+            GameObject player = Instantiate(prefab, pos, rot);
+            player.name = prefabName + "_Offline";
+            _hasSpawned = true;
+            Debug.Log($"[PlayerSpawner] Spawned offline {prefabName} at {pos} for editor play.");
+        }
+
         private bool TryReuseOrCleanOwnedPlayer(Vector3 pos, Quaternion rot)
         {
             PlayerController kept = null;
             var players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include);
             foreach (var player in players)
             {
-                if (player == null || player.photonView == null || !player.photonView.IsMine) continue;
+                if (player == null) continue;
+
+                bool isOwned = !PhotonNetwork.InRoom || player.photonView == null || player.photonView.IsMine;
+                if (!isOwned) continue;
+
                 if (kept == null)
                 {
                     kept = player;
                     continue;
                 }
 
-                PhotonNetwork.Destroy(player.gameObject);
+                if (PhotonNetwork.InRoom && player.photonView != null)
+                {
+                    PhotonNetwork.Destroy(player.gameObject);
+                }
+                else
+                {
+                    Destroy(player.gameObject);
+                }
             }
 
             if (kept == null) return false;
@@ -116,8 +170,8 @@ namespace FutureHeroQuest.Players
             position = Vector3.zero;
             rotation = Quaternion.identity;
 
-            if (Instance == null || NetworkManager.Instance == null) return false;
-            var role = NetworkManager.Instance.MyRole;
+            if (Instance == null) return false;
+            GameRole role = NetworkManager.Instance != null ? NetworkManager.Instance.MyRole : Instance.offlineRole;
             Transform spawn = role == GameRole.Past ? Instance.pastSpawnPoint : Instance.futureSpawnPoint;
             if (spawn == null) return false;
 

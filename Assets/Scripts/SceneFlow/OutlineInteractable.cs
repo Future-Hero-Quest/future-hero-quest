@@ -19,6 +19,8 @@ namespace FutureHeroQuest.SceneFlow
 
         private bool _used;
 
+        public bool IsUsed => _used;
+
         private void OnDisable()
         {
             SetPrompt(false);
