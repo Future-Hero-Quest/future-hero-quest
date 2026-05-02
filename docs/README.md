@@ -8,9 +8,11 @@
 | 1 | [`../README.md`](../README.md) | 3 分钟 | 项目简介 + 快速开始 |
 | 2 | [`../ONBOARD.md`](../ONBOARD.md) | 10 分钟 | 完整入坑指南（环境配置 + Git 流程 + Unity 设置） |
 | 3 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | 10 分钟 | 技术架构总览 + 代码组织 |
-| 4 | [`PLAN.md`](./PLAN.md) 附录 R | 5 分钟 | 最新关卡设计（v2 三方向） |
-| 5 | [`thread-prompts/README.md`](./thread-prompts/README.md) | 3 分钟 | 多线程任务分工与 handoff prompts |
-| 6 | [`PLAN.md`](./PLAN.md) 全文 | 30-60 分钟 | 完整设计文档（按需精读） |
+| 4 | [`RELEASE_ACCEPTANCE.md`](./RELEASE_ACCEPTANCE.md) | 5 分钟 | 当前发布验收与最终构建门禁 |
+| 5 | [`ITCH_PAGE.md`](./ITCH_PAGE.md) | 5 分钟 | itch.io 项目页草稿 |
+| 6 | [`PLAN.md`](./PLAN.md) 附录 R | 5 分钟 | 历史关卡设计与当前执行修订 |
+| 7 | [`thread-prompts/README.md`](./thread-prompts/README.md) | 3 分钟 | 多线程任务分工与 handoff prompts |
+| 8 | [`PLAN.md`](./PLAN.md) 全文 | 30-60 分钟 | 完整设计文档（按需精读） |
 
 ---
 
@@ -22,6 +24,8 @@
 | `ONBOARD.md`（仓库根） | 项目主 | 偶尔 | 是（团队入口） |
 | `docs/ARCHITECTURE.md` | 程序 | 架构变化时 | 是（技术权威） |
 | `docs/PLAN.md` | 项目主 + 策划 | 设计调整时 | 是（设计权威） |
+| `docs/RELEASE_ACCEPTANCE.md` | 项目主 + 主控线程 | 发布前 | 是（发布验收权威） |
+| `docs/ITCH_PAGE.md` | 项目主 + 主控线程 | 发布前 | 是（提交页文案草稿） |
 | `docs/thread-prompts/` | 项目主 + AI 主控线程 | 多线程分工变化时 | 是（线程 handoff 权威） |
 | `docs/README.md`（本文件） | 任意人 | 加新文档时 | 是（导航） |
 
@@ -29,6 +33,7 @@
 
 ## 重要提示
 
+- 📌 **当前发布状态以 `README.md` + `RELEASE_ACCEPTANCE.md` 为准**；`PLAN.md` 保留完整历史设计和调整记录
 - 📌 **PLAN.md 很长（65KB）**，不要尝试一次读完。用 IDE 的搜索 / 大纲面板按需查阅
 - 📌 **决策记录**在 PLAN.md 各附录的开头，看附录 J/K/Q/R 即可掌握最新设计
 - 📌 **ARCHITECTURE.md 是技术权威**，PLAN.md 里的代码示例如果跟它冲突，以 ARCHITECTURE 为准
