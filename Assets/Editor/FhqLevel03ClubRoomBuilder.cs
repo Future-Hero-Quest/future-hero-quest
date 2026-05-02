@@ -26,6 +26,7 @@ namespace FutureHeroQuest.EditorTools
             public GameObject DoorClosed;
             public GameObject DoorOpen;
             public GameObject ExitPad;
+            public GameObject ExitLabel;
             public GameObject ExitZone;
             public GameObject LockWaitingLamp;
             public GameObject LockReadyLamp;
@@ -165,17 +166,17 @@ namespace FutureHeroQuest.EditorTools
             pocket2Ball.SetActive(false);
             pocket3Ball.SetActive(false);
 
-            var resultNone = CreateResultPanel(parent, "BallResult_None", "BallResult: None", new Vector3(0.7f, 1.15f, -1.95f), materials["cyan"]);
-            var resultPocket1 = CreateResultPanel(parent, "BallResult_Pocket1", "Pocket 1: wrong", new Vector3(0.7f, 1.15f, -1.95f), materials["red"]);
-            var resultPocket2 = CreateResultPanel(parent, "BallResult_Pocket2", "Pocket 2: close", new Vector3(0.7f, 1.15f, -1.95f), materials["yellow"]);
-            var resultPocket3 = CreateResultPanel(parent, "BallResult_Pocket3", "Pocket 3: unlock", new Vector3(0.7f, 1.15f, -1.95f), materials["green"]);
+            var resultNone = CreateResultPanel(parent, "BallResult_None", "Result: none", new Vector3(2.65f, 1.2f, 2.55f), materials["cyan"]);
+            var resultPocket1 = CreateResultPanel(parent, "BallResult_Pocket1", "P1 wrong", new Vector3(2.65f, 1.2f, 2.55f), materials["red"]);
+            var resultPocket2 = CreateResultPanel(parent, "BallResult_Pocket2", "P2 close", new Vector3(2.65f, 1.2f, 2.55f), materials["yellow"]);
+            var resultPocket3 = CreateResultPanel(parent, "BallResult_Pocket3", "P3 unlock", new Vector3(2.65f, 1.2f, 2.55f), materials["green"]);
             resultPocket1.SetActive(false);
             resultPocket2.SetActive(false);
             resultPocket3.SetActive(false);
 
-            CreateShotChoice(parent, materials, "Past_ShotA_Pocket1", "E: Shot A -> P1", "Pocket_1", new Vector3(-4.15f, 0.42f, -2.45f));
-            CreateShotChoice(parent, materials, "Past_ShotB_Pocket2", "E: Shot B -> P2", "Pocket_2", new Vector3(-3.45f, 0.42f, -2.0f));
-            CreateShotChoice(parent, materials, "Past_ShotC_Pocket3", "E: Shot C -> P3", "Pocket_3", new Vector3(-2.75f, 0.42f, -1.55f));
+            CreateShotChoice(parent, materials, "Past_ShotA_Pocket1", "E: Shot A", "Pocket_1", new Vector3(-4.15f, 0.42f, -2.45f));
+            CreateShotChoice(parent, materials, "Past_ShotB_Pocket2", "E: Shot B", "Pocket_2", new Vector3(-3.45f, 0.42f, -2.0f));
+            CreateShotChoice(parent, materials, "Past_ShotC_Pocket3", "E: Shot C", "Pocket_3", new Vector3(-2.75f, 0.42f, -1.55f));
 
             CreateBallResultApplier(
                 parent,
@@ -192,7 +193,7 @@ namespace FutureHeroQuest.EditorTools
             CreateBallResultApplier(
                 parent,
                 "Pocket_3",
-                new[] { resultPocket3, pocket3Ball, doorRefs.FutureLockRoot, doorRefs.LockReadyLamp, doorRefs.DoorOpen, doorRefs.ExitPad, doorRefs.ExitZone },
+                new[] { resultPocket3, pocket3Ball, doorRefs.FutureLockRoot, doorRefs.LockReadyLamp, doorRefs.DoorOpen, doorRefs.ExitPad, doorRefs.ExitLabel, doorRefs.ExitZone },
                 new[] { resultNone, resultPocket1, resultPocket2, pocket1Ball, pocket2Ball, doorRefs.LockWaitingLamp, doorRefs.DoorClosed });
         }
 
@@ -206,7 +207,7 @@ namespace FutureHeroQuest.EditorTools
             lockRoot.transform.SetParent(parent);
             lockRoot.transform.position = new Vector3(3.55f, 0f, 1.4f);
             var console = CreateCube("Future_LockConsole", lockRoot.transform, new Vector3(0f, 0.55f, 0f), new Vector3(0.9f, 1.1f, 0.42f), materials["cyan"], true);
-            var prompt = CreateWorldText("Prompt_FutureLock", "E: unlock door", lockRoot.transform, new Vector3(0f, 1.35f, 0f), materials["cyan"].color);
+            var prompt = CreateWorldText("Prompt_FutureLock", "E: unlock", lockRoot.transform, new Vector3(0f, 1.25f, -0.15f), materials["cyan"].color, 0.05f);
             prompt.SetActive(false);
 
             var sender = console.AddComponent<SemanticStateSender>();
@@ -231,6 +232,8 @@ namespace FutureHeroQuest.EditorTools
 
             var exitPad = CreateCube("ExitPad_L3_Exit_Visual", parent, new Vector3(5.35f, 0.02f, 0f), new Vector3(1.1f, 0.04f, 1.6f), materials["exit"], false);
             exitPad.SetActive(false);
+            var exitLabel = CreateWorldText("Label_L3_Exit", "EXIT", parent, new Vector3(5.2f, 1.55f, -1.05f), materials["exit"].color, 0.065f);
+            exitLabel.SetActive(false);
             var exitZone = CreateCube("ExitZone_L3_Exit", parent, new Vector3(5.45f, 0.65f, 0f), new Vector3(1.4f, 1.3f, 2.1f), materials["exit"], true);
             var exitRenderer = exitZone.GetComponent<MeshRenderer>();
             if (exitRenderer != null) exitRenderer.enabled = false;
@@ -248,7 +251,7 @@ namespace FutureHeroQuest.EditorTools
                 "LockState",
                 "Unlocked",
                 "L3_Lock",
-                new[] { doorOpen, lockReadyLamp, exitPad, exitZone },
+                new[] { doorOpen, lockReadyLamp, exitPad, exitLabel, exitZone },
                 new[] { doorClosed, lockWaitingLamp },
                 null,
                 null);
@@ -259,6 +262,7 @@ namespace FutureHeroQuest.EditorTools
                 DoorClosed = doorClosed,
                 DoorOpen = doorOpen,
                 ExitPad = exitPad,
+                ExitLabel = exitLabel,
                 ExitZone = exitZone,
                 LockWaitingLamp = lockWaitingLamp,
                 LockReadyLamp = lockReadyLamp
@@ -308,14 +312,14 @@ namespace FutureHeroQuest.EditorTools
             root.transform.localPosition = position;
 
             CreateCube($"{name}_Lamp", root.transform, Vector3.zero, new Vector3(0.55f, 0.35f, 0.22f), material, false);
-            CreateWorldText($"{name}_Label", label, root.transform, new Vector3(0f, 0.42f, 0f), material.color);
+            CreateWorldText($"{name}_Label", label, root.transform, new Vector3(0f, 0.42f, 0f), material.color, 0.045f);
             return root;
         }
 
         private static void CreateShotChoice(Transform parent, Dictionary<string, Material> materials, string name, string label, string stateValue, Vector3 position)
         {
             var interact = CreateCube(name, parent, position, new Vector3(0.55f, 0.72f, 0.55f), materials["amber"], false);
-            var prompt = CreateWorldText($"Prompt_{name}", label, parent, position + new Vector3(0f, 0.95f, 0f), materials["amber"].color);
+            var prompt = CreateWorldText($"Prompt_{name}", label, parent, position + new Vector3(0f, 0.82f, 0f), materials["amber"].color, 0.05f);
             prompt.SetActive(false);
 
             var sender = interact.AddComponent<SemanticStateSender>();
@@ -356,8 +360,8 @@ namespace FutureHeroQuest.EditorTools
             CreateCube("OldCabinet_Right", parent, new Vector3(-3.9f, 0.85f, 2.85f), new Vector3(0.7f, 1.7f, 1.1f), materials["wood"], true);
             CreateCube("CueRack", parent, new Vector3(-4.6f, 0.75f, -3.2f), new Vector3(0.35f, 1.5f, 1.1f), materials["rail"], true);
             CreateCube("BrokenSofa", parent, new Vector3(2.35f, 0.32f, -3.35f), new Vector3(2.0f, 0.64f, 0.8f), materials["wood"], true);
-            CreateWorldText("Label_P3", "P3", parent, new Vector3(0.4f, 1.55f, 0.9f), materials["green"].color);
-            CreateWorldText("Label_FinalDoor", "Final Door", parent, new Vector3(5.0f, 1.75f, -0.95f), materials["exit"].color);
+            CreateWorldText("Label_P3", "P3", parent, new Vector3(0.4f, 1.55f, 0.9f), materials["green"].color, 0.045f);
+            CreateWorldText("Label_FinalDoor", "Final Door", parent, new Vector3(4.95f, 1.85f, -1.35f), materials["exit"].color, 0.045f);
         }
 
         private static void CreateSceneManagers()
@@ -428,16 +432,19 @@ namespace FutureHeroQuest.EditorTools
             var canvasGo = new GameObject("Canvas");
             var canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasGo.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            var scaler = canvasGo.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1280f, 720f);
+            scaler.matchWidthOrHeight = 0.5f;
             canvasGo.AddComponent<GraphicRaycaster>();
 
             var text = CreateText(
                 canvasGo.transform,
                 "HudText",
-                "L3 Club Room | Past: choose Shot A/B/C | Future: read BallResult and unlock | E interact, R reset",
-                16,
+                "L3 Club Room | K: choose shot | M: read result + unlock | E interact | R host reset",
+                18,
                 TextAnchor.UpperLeft);
-            SetRect(text.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(390f, -26f), new Vector2(760f, 36f));
+            SetRect(text.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(430f, -26f), new Vector2(840f, 36f));
         }
 
         private static void CreateEventSystem()
@@ -496,7 +503,7 @@ namespace FutureHeroQuest.EditorTools
             if (collider != null) Object.DestroyImmediate(collider);
         }
 
-        private static GameObject CreateWorldText(string name, string content, Transform parent, Vector3 position, Color color)
+        private static GameObject CreateWorldText(string name, string content, Transform parent, Vector3 position, Color color, float characterSize = 0.05f)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent);
@@ -505,8 +512,8 @@ namespace FutureHeroQuest.EditorTools
 
             var text = go.AddComponent<TextMesh>();
             text.text = content;
-            text.fontSize = 42;
-            text.characterSize = 0.075f;
+            text.fontSize = 96;
+            text.characterSize = characterSize;
             text.anchor = TextAnchor.MiddleCenter;
             text.alignment = TextAlignment.Center;
             text.color = color;

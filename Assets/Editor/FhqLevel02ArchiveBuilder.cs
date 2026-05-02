@@ -178,7 +178,7 @@ namespace FutureHeroQuest.EditorTools
             CreateCube(wrongRoot.transform, "WrongFilePedestal", wrongRoot.transform.position + Vector3.up * 0.12f, new Vector3(1.1f, 0.24f, 1.1f), wrong);
             CreateCube(wrongRoot.transform, "WrongFileVisual", wrongRoot.transform.position + new Vector3(0f, 0.55f, 0f), new Vector3(0.85f, 0.12f, 0.58f), wrong);
             CreateWorldLabel(wrongRoot.transform, "VisibleLabel", "FILE 271", wrongRoot.transform.position + new Vector3(0f, 1.0f, 0f), new Color(1f, 0.55f, 0.22f), 0.12f);
-            GameObject wrongPrompt = CreateWorldLabel(wrongRoot.transform, "Prompt", "E: Place Wrong File", wrongRoot.transform.position + new Vector3(0f, 1.32f, 0f), new Color(1f, 0.55f, 0.22f), 0.105f);
+            GameObject wrongPrompt = CreateWorldLabel(wrongRoot.transform, "Prompt", "E: Wrong File", wrongRoot.transform.position + new Vector3(0f, 1.22f, 0f), new Color(1f, 0.55f, 0.22f), 0.09f);
             wrongPrompt.SetActive(false);
 
             var wrongSender = wrongRoot.AddComponent<SemanticStateSender>();
@@ -191,7 +191,7 @@ namespace FutureHeroQuest.EditorTools
             CreateCube(keyRoot.transform, "KeyPedestal", keyRoot.transform.position + Vector3.up * 0.12f, new Vector3(1.1f, 0.24f, 1.1f), key);
             CreateCube(keyRoot.transform, "KeyVisual", keyRoot.transform.position + new Vector3(0f, 0.55f, 0f), new Vector3(0.85f, 0.16f, 0.16f), key);
             CreateWorldLabel(keyRoot.transform, "VisibleLabel", "ARCHIVE 314", keyRoot.transform.position + new Vector3(0f, 1.0f, 0f), Color.yellow, 0.12f);
-            GameObject keyPrompt = CreateWorldLabel(keyRoot.transform, "Prompt", "E: Place Correct File", keyRoot.transform.position + new Vector3(0f, 1.32f, 0f), Color.yellow, 0.105f);
+            GameObject keyPrompt = CreateWorldLabel(keyRoot.transform, "Prompt", "E: File 314", keyRoot.transform.position + new Vector3(0f, 1.22f, 0f), Color.yellow, 0.09f);
             keyPrompt.SetActive(false);
 
             var sender = keyRoot.AddComponent<SemanticStateSender>();
@@ -219,16 +219,16 @@ namespace FutureHeroQuest.EditorTools
             cluePoint.transform.position = new Vector3(3.1f, 0.05f, -2.2f);
             CreateCube(cluePoint.transform, "ArchiveCard", cluePoint.transform.position + Vector3.up * 0.32f, new Vector3(1.15f, 0.08f, 0.75f), clue);
             CreateWorldLabel(cluePoint.transform, "VisibleLabel", "ARCHIVE 314", cluePoint.transform.position + new Vector3(0f, 0.9f, 0f), Color.cyan, 0.12f);
-            GameObject cluePrompt = CreateWorldLabel(cluePoint.transform, "Prompt", "E: Read Clue", cluePoint.transform.position + new Vector3(0f, 1.22f, 0f), Color.cyan, 0.105f);
+            GameObject cluePrompt = CreateWorldLabel(cluePoint.transform, "Prompt", "E: Read 314", cluePoint.transform.position + new Vector3(0f, 1.12f, 0f), Color.cyan, 0.09f);
             cluePrompt.SetActive(false);
 
             var sender = cluePoint.AddComponent<SemanticStateSender>();
             ConfigureSender(sender, EventKind.SetClueState, EventDirection.FutureToPast, "ClueState", "Archive314", "L2_ArchiveClue", GameRole.Future, cluePrompt, null);
 
-            GameObject missingFeedback = CreateStatusPanel(root, "Future_KeyMissingFeedback_Default", new Vector3(5.4f, 0.7f, -2.4f), missing, "KEYSTATE: MISSING\nFILE 314 ABSENT\nDOOR LOCKED", Color.cyan);
-            GameObject wrongFeedback = CreateStatusPanel(root, "Future_WrongFileFeedback", new Vector3(5.4f, 0.7f, -2.4f), wrong, "KEYSTATE: WRONGFILE\nFILE 271 REJECTED\nTELL K TO USE 314", new Color(1f, 0.55f, 0.22f));
+            GameObject missingFeedback = CreateStatusPanel(root, "Future_KeyMissingFeedback_Default", new Vector3(7.15f, 0.92f, -1.35f), missing, "Missing\n314 absent\nDoor locked", Color.cyan);
+            GameObject wrongFeedback = CreateStatusPanel(root, "Future_WrongFileFeedback", new Vector3(7.15f, 0.92f, -1.35f), wrong, "Wrong file\nUse archive 314", new Color(1f, 0.55f, 0.22f));
             wrongFeedback.SetActive(false);
-            GameObject placedFeedback = CreateStatusPanel(root, "Future_FilePlacedFeedback", new Vector3(5.4f, 0.7f, -2.4f), unlocked, "KEYSTATE: PLACED\nARCHIVE 314 RESTORED\nUNLOCK CONSOLE READY", Color.green);
+            GameObject placedFeedback = CreateStatusPanel(root, "Future_FilePlacedFeedback", new Vector3(7.15f, 0.92f, -1.35f), unlocked, "Placed\nUnlock ready", Color.green);
             placedFeedback.SetActive(false);
 
             GameObject doorFrame = CreateCube(root, "Future_LockedDoorFrame", new Vector3(7.6f, 1.1f, 4.25f), new Vector3(1.9f, 2.2f, 0.18f), locked);
@@ -254,7 +254,7 @@ namespace FutureHeroQuest.EditorTools
             unlockConsole.transform.position = new Vector3(6.55f, 0.05f, 3.15f);
             CreateCube(unlockConsole.transform, "UnlockConsoleBase", unlockConsole.transform.position + Vector3.up * 0.28f, new Vector3(0.9f, 0.55f, 0.7f), unlocked);
             CreateWorldLabel(unlockConsole.transform, "VisibleLabel", "UNLOCK", unlockConsole.transform.position + new Vector3(0f, 0.82f, 0f), Color.green, 0.12f);
-            GameObject unlockPrompt = CreateWorldLabel(unlockConsole.transform, "Prompt", "E: Unlock Door", unlockConsole.transform.position + new Vector3(0f, 1.14f, 0f), Color.green, 0.105f);
+            GameObject unlockPrompt = CreateWorldLabel(unlockConsole.transform, "Prompt", "E: Unlock", unlockConsole.transform.position + new Vector3(0f, 1.05f, 0f), Color.green, 0.09f);
             unlockPrompt.SetActive(false);
             var unlockSender = unlockConsole.AddComponent<SemanticStateSender>();
             ConfigureSender(unlockSender, EventKind.SetKeyState, EventDirection.Bidirectional, "KeyState", "Unlocked", "L2_Key", GameRole.Future, unlockPrompt, new[] { unlockConsole });
@@ -302,15 +302,15 @@ namespace FutureHeroQuest.EditorTools
             root.SetParent(parent, false);
 
             CreateCube(root, "State_Missing", new Vector3(0f, 0.2f, -2.4f), new Vector3(0.35f, 0.35f, 0.35f), missing);
-            CreateWorldLabel(root, "State_Missing_Label", "0  KeyState=Missing", new Vector3(0f, 0.2f, -1.95f), Color.cyan, 0.09f);
+            CreateWorldLabel(root, "State_Missing_Label", "0 Missing", new Vector3(0f, 0.2f, -1.95f), Color.cyan, 0.055f);
             CreateCube(root, "Step1_FutureToPast", new Vector3(0f, 0.2f, -1.2f), new Vector3(0.35f, 0.35f, 0.35f), clue);
-            CreateWorldLabel(root, "Step1_Label", "1  Future reads Archive314", new Vector3(0f, 0.2f, -0.75f), Color.cyan, 0.09f);
+            CreateWorldLabel(root, "Step1_Label", "1 Read 314", new Vector3(0f, 0.2f, -0.75f), Color.cyan, 0.055f);
             CreateCube(root, "State_WrongFile", new Vector3(0f, 0.2f, 0f), new Vector3(0.35f, 0.35f, 0.35f), wrong);
-            CreateWorldLabel(root, "State_WrongFile_Label", "2A KeyState=WrongFile", new Vector3(0f, 0.2f, 0.45f), new Color(1f, 0.55f, 0.22f), 0.09f);
+            CreateWorldLabel(root, "State_WrongFile_Label", "2A Wrong", new Vector3(0f, 0.2f, 0.45f), new Color(1f, 0.55f, 0.22f), 0.055f);
             CreateCube(root, "State_Placed", new Vector3(0f, 0.2f, 1.2f), new Vector3(0.35f, 0.35f, 0.35f), key);
-            CreateWorldLabel(root, "State_Placed_Label", "2B KeyState=Placed", new Vector3(0f, 0.2f, 1.65f), Color.yellow, 0.09f);
+            CreateWorldLabel(root, "State_Placed_Label", "2B Placed", new Vector3(0f, 0.2f, 1.65f), Color.yellow, 0.055f);
             CreateCube(root, "State_Unlocked", new Vector3(0f, 0.2f, 2.4f), new Vector3(0.35f, 0.35f, 0.35f), unlocked);
-            CreateWorldLabel(root, "State_Unlocked_Label", "3  KeyState=Unlocked", new Vector3(0f, 0.2f, 2.85f), Color.green, 0.09f);
+            CreateWorldLabel(root, "State_Unlocked_Label", "3 Unlocked", new Vector3(0f, 0.2f, 2.85f), Color.green, 0.055f);
 
             CreateCube(root, "LockedStateSwatch", new Vector3(0f, 0.2f, 3.65f), new Vector3(0.28f, 0.28f, 0.28f), locked);
         }
@@ -421,8 +421,9 @@ namespace FutureHeroQuest.EditorTools
             GameObject panel = new GameObject(name);
             panel.transform.SetParent(parent, false);
             panel.transform.position = position;
-            CreateCube(panel.transform, "Panel", position, new Vector3(2.25f, 0.12f, 1.15f), material);
-            CreateWorldLabel(panel.transform, "Label", label, position + new Vector3(0f, 0.35f, 0f), labelColor, 0.08f);
+            GameObject board = CreateCube(panel.transform, "Panel", position, new Vector3(1.85f, 0.08f, 0.9f), material);
+            RemoveCollider(board);
+            CreateWorldLabel(panel.transform, "Label", label, position + new Vector3(0f, 0.28f, 0f), labelColor, 0.06f);
             return panel;
         }
 
@@ -456,8 +457,9 @@ namespace FutureHeroQuest.EditorTools
             mesh.text = text;
             mesh.anchor = TextAnchor.MiddleCenter;
             mesh.alignment = TextAlignment.Center;
-            mesh.characterSize = size;
-            mesh.fontSize = 64;
+            mesh.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+            mesh.fontSize = 96;
+            mesh.characterSize = size * 64f / 96f;
             mesh.color = color;
             return go;
         }

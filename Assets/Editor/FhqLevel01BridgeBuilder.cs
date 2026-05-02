@@ -535,10 +535,12 @@ namespace FutureHeroQuest.EditorTools
             go.transform.position = position;
             go.transform.rotation = Quaternion.Euler(62f, 0f, 0f);
 
+            int clearFontSize = Mathf.Max(fontSize, 96);
             var mesh = go.AddComponent<TextMesh>();
             mesh.text = text;
-            mesh.fontSize = fontSize;
-            mesh.characterSize = characterSize;
+            mesh.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+            mesh.fontSize = clearFontSize;
+            mesh.characterSize = characterSize * fontSize / clearFontSize;
             mesh.anchor = TextAnchor.MiddleCenter;
             mesh.alignment = TextAlignment.Center;
             mesh.color = color;

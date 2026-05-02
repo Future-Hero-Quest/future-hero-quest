@@ -80,7 +80,7 @@ namespace FutureHeroQuest.Players
         private bool TryReuseOrCleanOwnedPlayer(Vector3 pos, Quaternion rot)
         {
             PlayerController kept = null;
-            var players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include);
             foreach (var player in players)
             {
                 if (player == null || player.photonView == null || !player.photonView.IsMine) continue;
@@ -103,7 +103,7 @@ namespace FutureHeroQuest.Players
         {
             if (!PhotonNetwork.InRoom) return;
 
-            var players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include);
             foreach (var player in players)
             {
                 if (player == null || player.photonView == null || !player.photonView.IsMine) continue;
@@ -130,7 +130,14 @@ namespace FutureHeroQuest.Players
         {
             int roomPlayers = PhotonNetwork.InRoom ? PhotonNetwork.CurrentRoom.PlayerCount : 0;
             int spawnedCapsules = FindObjectsByType<PlayerController>(FindObjectsInactive.Exclude).Length;
-            GUI.Label(new Rect(12, 40, 360, 24), $"Room Players: {roomPlayers} / Spawned Capsules: {spawnedCapsules}");
+
+            var style = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = Mathf.Clamp(Mathf.RoundToInt(Screen.height / 54f), 13, 16),
+                alignment = TextAnchor.LowerLeft
+            };
+            style.normal.textColor = new Color(0.92f, 0.94f, 0.96f, 0.9f);
+            GUI.Label(new Rect(12, Screen.height - 30, 420, 24), $"Room Players: {roomPlayers} / Spawned Capsules: {spawnedCapsules}", style);
         }
     }
 }
