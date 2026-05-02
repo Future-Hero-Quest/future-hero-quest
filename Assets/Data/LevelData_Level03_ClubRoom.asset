@@ -19,13 +19,13 @@ MonoBehaviour:
   futureDateLabel: 2026 Abandoned Club Room
   randomSeed: 3003
   pastDialogue:
-  - P3 is the pocket.
-  - I can take the shot.
+  - I can choose a shot line.
+  - Tell me which pocket reacts.
   futureDialogue:
-  - The lock reacts to P3.
+  - Pocket 3 opens the lock.
   - Door is open.
   passiveHintAfterSeconds: 45
-  passiveHintForFuture: Wait for P3, then align the lock console.
-  passiveHintForPast: Use the billiards cue station near the table.
+  passiveHintForFuture: Watch the result board and tell Past which pocket is correct.
+  passiveHintForPast: Try the three shot choices near the billiards table.
   completeCondition: 0
   targetIdRequired: L3_Exit

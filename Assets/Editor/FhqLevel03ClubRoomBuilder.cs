@@ -21,6 +21,16 @@ namespace FutureHeroQuest.EditorTools
         private const string LevelDataPath = "Assets/Data/LevelData_Level03_ClubRoom.asset";
         private const string PrefracturedWallPath = "Assets/Prefabs/Level/PrefracturedTestWall.prefab";
 
+        private sealed class DoorRefs
+        {
+            public GameObject FutureLockRoot;
+            public GameObject DoorClosed;
+            public GameObject DoorOpen;
+            public GameObject ExitZone;
+            public GameObject LockWaitingLamp;
+            public GameObject LockReadyLamp;
+        }
+
         [MenuItem("FHQ/Generate Level 03 Club Room")]
         public static void GenerateLevel03ClubRoom()
         {
@@ -35,8 +45,8 @@ namespace FutureHeroQuest.EditorTools
             var materials = CreateMaterials();
 
             CreateRoom(root.transform, materials);
-            GameObject futureLockRoot = CreateFutureLockAndDoor(root.transform, materials);
-            CreateBilliardsPuzzle(root.transform, materials, futureLockRoot);
+            DoorRefs doorRefs = CreateFutureLockAndDoor(root.transform, materials);
+            CreateBilliardsPuzzle(root.transform, materials, doorRefs);
             CreateOptionalGlassBreak(root.transform);
             CreateOldClubProps(root.transform, materials);
             CreateSceneManagers();
@@ -70,6 +80,7 @@ namespace FutureHeroQuest.EditorTools
                 ["black"] = CreateMaterial("L3_PocketBlack_Mat", Color.black),
                 ["white"] = CreateMaterial("L3_BallWhite_Mat", new Color(0.92f, 0.92f, 0.84f)),
                 ["red"] = CreateMaterial("L3_StateRed_Mat", new Color(0.85f, 0.18f, 0.14f)),
+                ["yellow"] = CreateMaterial("L3_StateYellow_Mat", new Color(0.95f, 0.75f, 0.12f)),
                 ["green"] = CreateMaterial("L3_StateGreen_Mat", new Color(0.16f, 0.9f, 0.38f)),
                 ["amber"] = CreateMaterial("L3_PastAmber_Mat", new Color(1.0f, 0.64f, 0.18f)),
                 ["cyan"] = CreateMaterial("L3_FutureCyan_Mat", new Color(0.18f, 0.78f, 1.0f)),
@@ -129,7 +140,7 @@ namespace FutureHeroQuest.EditorTools
             CreateCube("EastWall_South", parent, new Vector3(6.05f, 1.15f, -2.9f), new Vector3(0.28f, 2.3f, 3.2f), materials["wall"], true);
         }
 
-        private static void CreateBilliardsPuzzle(Transform parent, Dictionary<string, Material> materials, GameObject futureLockRoot)
+        private static void CreateBilliardsPuzzle(Transform parent, Dictionary<string, Material> materials, DoorRefs doorRefs)
         {
             var tableRoot = new GameObject("BilliardsTable_L3_Billiards");
             tableRoot.transform.SetParent(parent);
@@ -147,45 +158,45 @@ namespace FutureHeroQuest.EditorTools
 
             CreateSphere("CueBall", tableRoot.transform, new Vector3(-1.1f, 1.02f, -0.35f), new Vector3(0.28f, 0.28f, 0.28f), materials["white"], true);
             CreateSphere("TargetBall", tableRoot.transform, new Vector3(0.45f, 1.02f, 0.1f), new Vector3(0.28f, 0.28f, 0.28f), materials["red"], true);
-            var pocketedBall = CreateSphere("Pocket3_ResultBall", tableRoot.transform, new Vector3(1.55f, 1.07f, 0.68f), new Vector3(0.28f, 0.28f, 0.28f), materials["green"], false);
-            pocketedBall.SetActive(false);
+            var pocket1Ball = CreateSphere("Pocket1_ResultBall", tableRoot.transform, new Vector3(-1.55f, 1.07f, 0.68f), new Vector3(0.28f, 0.28f, 0.28f), materials["red"], false);
+            var pocket2Ball = CreateSphere("Pocket2_ResultBall", tableRoot.transform, new Vector3(0f, 1.07f, -0.72f), new Vector3(0.28f, 0.28f, 0.28f), materials["yellow"], false);
+            var pocket3Ball = CreateSphere("Pocket3_ResultBall", tableRoot.transform, new Vector3(1.55f, 1.07f, 0.68f), new Vector3(0.28f, 0.28f, 0.28f), materials["green"], false);
+            pocket1Ball.SetActive(false);
+            pocket2Ball.SetActive(false);
+            pocket3Ball.SetActive(false);
 
-            var readyLamp = CreateCube("BallResultLamp_Red", parent, new Vector3(0.7f, 1.15f, -1.9f), new Vector3(0.35f, 0.35f, 0.35f), materials["red"], false);
-            var doneLamp = CreateCube("BallResultLamp_Green", parent, new Vector3(0.7f, 1.15f, -1.9f), new Vector3(0.35f, 0.35f, 0.35f), materials["green"], false);
-            doneLamp.SetActive(false);
+            var resultNone = CreateResultPanel(parent, "BallResult_None", "BallResult: None", new Vector3(0.7f, 1.15f, -1.95f), materials["cyan"]);
+            var resultPocket1 = CreateResultPanel(parent, "BallResult_Pocket1", "Pocket 1: wrong", new Vector3(0.7f, 1.15f, -1.95f), materials["red"]);
+            var resultPocket2 = CreateResultPanel(parent, "BallResult_Pocket2", "Pocket 2: close", new Vector3(0.7f, 1.15f, -1.95f), materials["yellow"]);
+            var resultPocket3 = CreateResultPanel(parent, "BallResult_Pocket3", "Pocket 3: unlock", new Vector3(0.7f, 1.15f, -1.95f), materials["green"]);
+            resultPocket1.SetActive(false);
+            resultPocket2.SetActive(false);
+            resultPocket3.SetActive(false);
 
-            var interact = CreateCube("Past_BilliardsShot_Interact", parent, new Vector3(-3.65f, 0.42f, -2.0f), new Vector3(0.65f, 0.84f, 0.65f), materials["amber"], false);
-            var prompt = CreateWorldText("Prompt_PastShoot", "E: shoot P3", parent, new Vector3(-3.65f, 1.4f, -2.0f), materials["amber"].color);
-            prompt.SetActive(false);
+            CreateShotChoice(parent, materials, "Past_ShotA_Pocket1", "E: Shot A -> P1", "Pocket_1", new Vector3(-4.15f, 0.42f, -2.45f));
+            CreateShotChoice(parent, materials, "Past_ShotB_Pocket2", "E: Shot B -> P2", "Pocket_2", new Vector3(-3.45f, 0.42f, -2.0f));
+            CreateShotChoice(parent, materials, "Past_ShotC_Pocket3", "E: Shot C -> P3", "Pocket_3", new Vector3(-2.75f, 0.42f, -1.55f));
 
-            var sender = interact.AddComponent<SemanticStateSender>();
-            ConfigureSender(
-                sender,
-                EventKind.SetBallResult,
-                EventDirection.Bidirectional,
-                "BallResult",
+            CreateBallResultApplier(
+                parent,
+                "Pocket_1",
+                new[] { resultPocket1, pocket1Ball },
+                new[] { resultNone, resultPocket2, resultPocket3, pocket2Ball, pocket3Ball });
+
+            CreateBallResultApplier(
+                parent,
+                "Pocket_2",
+                new[] { resultPocket2, pocket2Ball },
+                new[] { resultNone, resultPocket1, resultPocket3, pocket1Ball, pocket3Ball });
+
+            CreateBallResultApplier(
+                parent,
                 "Pocket_3",
-                "L3_Billiards",
-                GameRole.Past,
-                2.0f,
-                prompt,
-                new[] { readyLamp });
-
-            var applierGo = new GameObject("BallResult_Applier");
-            applierGo.transform.SetParent(parent);
-            var applier = applierGo.AddComponent<SemanticStateApplier>();
-            ConfigureApplier(
-                applier,
-                "BallResult",
-                "Pocket_3",
-                "L3_Billiards",
-                new[] { doneLamp, pocketedBall, futureLockRoot },
-                new[] { readyLamp },
-                null,
-                null);
+                new[] { resultPocket3, pocket3Ball, doorRefs.FutureLockRoot, doorRefs.LockReadyLamp, doorRefs.DoorOpen, doorRefs.ExitZone },
+                new[] { resultNone, resultPocket1, resultPocket2, pocket1Ball, pocket2Ball, doorRefs.LockWaitingLamp, doorRefs.DoorClosed });
         }
 
-        private static GameObject CreateFutureLockAndDoor(Transform parent, Dictionary<string, Material> materials)
+        private static DoorRefs CreateFutureLockAndDoor(Transform parent, Dictionary<string, Material> materials)
         {
             var lockReadyLamp = CreateCube("LockReadyLamp_Green", parent, new Vector3(3.55f, 1.15f, 1.4f), new Vector3(0.35f, 0.35f, 0.35f), materials["green"], false);
             lockReadyLamp.SetActive(false);
@@ -195,7 +206,7 @@ namespace FutureHeroQuest.EditorTools
             lockRoot.transform.SetParent(parent);
             lockRoot.transform.position = new Vector3(3.55f, 0f, 1.4f);
             var console = CreateCube("Future_LockConsole", lockRoot.transform, new Vector3(0f, 0.55f, 0f), new Vector3(0.9f, 1.1f, 0.42f), materials["cyan"], true);
-            var prompt = CreateWorldText("Prompt_FutureLock", "E: align lock", lockRoot.transform, new Vector3(0f, 1.35f, 0f), materials["cyan"].color);
+            var prompt = CreateWorldText("Prompt_FutureLock", "E: unlock door", lockRoot.transform, new Vector3(0f, 1.35f, 0f), materials["cyan"].color);
             prompt.SetActive(false);
 
             var sender = console.AddComponent<SemanticStateSender>();
@@ -204,12 +215,13 @@ namespace FutureHeroQuest.EditorTools
                 EventKind.SetLockState,
                 EventDirection.Bidirectional,
                 "LockState",
-                "Aligned",
+                "Unlocked",
                 "L3_Lock",
                 GameRole.Future,
                 2.0f,
                 prompt,
-                new[] { lockWaitingLamp });
+                new[] { lockWaitingLamp },
+                true);
             lockRoot.SetActive(false);
 
             var doorClosed = CreateCube("FinalDoor_Closed", parent, new Vector3(6.05f, 1.1f, 0f), new Vector3(0.34f, 2.2f, 1.55f), materials["door"], true);
@@ -230,14 +242,22 @@ namespace FutureHeroQuest.EditorTools
             ConfigureApplier(
                 doorApplier,
                 "LockState",
-                "Aligned",
+                "Unlocked",
                 "L3_Lock",
                 new[] { doorOpen, lockReadyLamp, exitZone },
                 new[] { doorClosed, lockWaitingLamp },
                 null,
                 null);
 
-            return lockRoot;
+            return new DoorRefs
+            {
+                FutureLockRoot = lockRoot,
+                DoorClosed = doorClosed,
+                DoorOpen = doorOpen,
+                ExitZone = exitZone,
+                LockWaitingLamp = lockWaitingLamp,
+                LockReadyLamp = lockReadyLamp
+            };
         }
 
         private static void CreateOptionalGlassBreak(Transform parent)
@@ -274,6 +294,55 @@ namespace FutureHeroQuest.EditorTools
                 so.FindProperty("targetId").stringValue = "L3_GlassWall";
                 so.ApplyModifiedPropertiesWithoutUndo();
             }
+        }
+
+        private static GameObject CreateResultPanel(Transform parent, string name, string label, Vector3 position, Material material)
+        {
+            var root = new GameObject(name);
+            root.transform.SetParent(parent);
+            root.transform.localPosition = position;
+
+            CreateCube($"{name}_Lamp", root.transform, Vector3.zero, new Vector3(0.55f, 0.35f, 0.22f), material, false);
+            CreateWorldText($"{name}_Label", label, root.transform, new Vector3(0f, 0.42f, 0f), material.color);
+            return root;
+        }
+
+        private static void CreateShotChoice(Transform parent, Dictionary<string, Material> materials, string name, string label, string stateValue, Vector3 position)
+        {
+            var interact = CreateCube(name, parent, position, new Vector3(0.55f, 0.72f, 0.55f), materials["amber"], false);
+            var prompt = CreateWorldText($"Prompt_{name}", label, parent, position + new Vector3(0f, 0.95f, 0f), materials["amber"].color);
+            prompt.SetActive(false);
+
+            var sender = interact.AddComponent<SemanticStateSender>();
+            ConfigureSender(
+                sender,
+                EventKind.SetBallResult,
+                EventDirection.Bidirectional,
+                "BallResult",
+                stateValue,
+                "L3_Billiards",
+                GameRole.Past,
+                1.6f,
+                prompt,
+                null,
+                false);
+        }
+
+        private static void CreateBallResultApplier(Transform parent, string expectedValue, GameObject[] activateOnMatch, GameObject[] deactivateOnMatch)
+        {
+            var applierGo = new GameObject($"BallResult_{expectedValue}_Applier");
+            applierGo.transform.SetParent(parent);
+
+            var applier = applierGo.AddComponent<SemanticStateApplier>();
+            ConfigureApplier(
+                applier,
+                "BallResult",
+                expectedValue,
+                "L3_Billiards",
+                activateOnMatch,
+                deactivateOnMatch,
+                null,
+                null);
         }
 
         private static void CreateOldClubProps(Transform parent, Dictionary<string, Material> materials)
@@ -336,12 +405,12 @@ namespace FutureHeroQuest.EditorTools
             levelData.futureDateLabel = "2026 Abandoned Club Room";
             levelData.randomSeed = 3003;
             levelData.passiveHintAfterSeconds = 45f;
-            levelData.passiveHintForPast = "Use the billiards cue station near the table.";
-            levelData.passiveHintForFuture = "Wait for P3, then align the lock console.";
+            levelData.passiveHintForPast = "Try the three shot choices near the billiards table.";
+            levelData.passiveHintForFuture = "Watch the result board and tell Past which pocket is correct.";
             levelData.completeCondition = LevelData.LevelCompleteCondition.FuturePlayerReachZone;
             levelData.targetIdRequired = "L3_Exit";
-            levelData.pastDialogue = new[] { "P3 is the pocket.", "I can take the shot." };
-            levelData.futureDialogue = new[] { "The lock reacts to P3.", "Door is open." };
+            levelData.pastDialogue = new[] { "I can choose a shot line.", "Tell me which pocket reacts." };
+            levelData.futureDialogue = new[] { "Pocket 3 opens the lock.", "Door is open." };
             levelData.SanitizeSerializedState();
             EditorUtility.SetDirty(levelData);
             return levelData;
@@ -358,7 +427,7 @@ namespace FutureHeroQuest.EditorTools
             var text = CreateText(
                 canvasGo.transform,
                 "HudText",
-                "L3 Club Room | Past: shoot P3 | Future: align lock after P3 | E interact, R reset",
+                "L3 Club Room | Past: choose Shot A/B/C | Future: read BallResult and unlock | E interact, R reset",
                 16,
                 TextAnchor.UpperLeft);
             SetRect(text.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(390f, -26f), new Vector2(760f, 36f));
@@ -475,7 +544,8 @@ namespace FutureHeroQuest.EditorTools
             GameRole role,
             float radius,
             GameObject prompt,
-            GameObject[] deactivateAfterSend)
+            GameObject[] deactivateAfterSend,
+            bool sendOnce = true)
         {
             var so = new SerializedObject(sender);
             so.FindProperty("eventKind").enumValueIndex = (int)kind;
@@ -486,7 +556,7 @@ namespace FutureHeroQuest.EditorTools
             so.FindProperty("restrictToRole").boolValue = true;
             so.FindProperty("requiredRole").enumValueIndex = (int)role;
             so.FindProperty("interactRadius").floatValue = radius;
-            so.FindProperty("sendOnce").boolValue = true;
+            so.FindProperty("sendOnce").boolValue = sendOnce;
             so.FindProperty("promptUI").objectReferenceValue = prompt;
             SetObjectArray(so.FindProperty("deactivateAfterSend"), deactivateAfterSend);
             so.ApplyModifiedPropertiesWithoutUndo();
