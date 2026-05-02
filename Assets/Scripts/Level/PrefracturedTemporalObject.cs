@@ -32,6 +32,7 @@ namespace FutureHeroQuest.Level
         [SerializeField] private bool makeFragmentsKinematicUntilBroken = true;
         [SerializeField] private bool toggleFragmentColliders = true;
         [SerializeField] private bool useGravityWhenBroken = true;
+        [SerializeField] private bool freezeConstraintsUntilBroken = true;
 
         [Header("Break Impulse")]
         [SerializeField] private bool applyBreakImpulse = true;
@@ -153,6 +154,8 @@ namespace FutureHeroQuest.Level
 
                     if (!broken) ClearVelocity(rb);
                     if (makeFragmentsKinematicUntilBroken) rb.isKinematic = !broken;
+                    if (freezeConstraintsUntilBroken)
+                        rb.constraints = broken ? RigidbodyConstraints.None : RigidbodyConstraints.FreezeAll;
                     rb.useGravity = broken && useGravityWhenBroken;
                     rb.detectCollisions = broken;
                 }
