@@ -126,6 +126,21 @@ namespace FutureHeroQuest.Level
             CompleteFromMaster();
         }
 
+        public void NotifyReachTarget(string targetId)
+        {
+            if (_completed || _completionRequested) return;
+            if (levelData == null) return;
+
+            string normalizedTarget = targetId?.Trim() ?? string.Empty;
+            if (string.IsNullOrEmpty(normalizedTarget)) return;
+
+            _changedTargetIds.Add(normalizedTarget);
+            if (levelData.completeCondition != LevelData.LevelCompleteCondition.FuturePlayerReachZone) return;
+            if (!string.Equals(levelData.targetIdRequired, normalizedTarget, System.StringComparison.OrdinalIgnoreCase)) return;
+
+            MarkLevelComplete();
+        }
+
         [PunRPC]
         private void RPC_RequestLevelComplete(PhotonMessageInfo info)
         {
@@ -171,6 +186,34 @@ namespace FutureHeroQuest.Level
                 PhotonNetwork.LoadLevel(nextLevelScene);
             else
                 SceneManager.LoadScene(nextLevelScene);
+        }
+
+        private void OnGUI()
+        {
+            if (!_completed) return;
+
+            string title = string.IsNullOrEmpty(nextLevelScene) ? "CHAPTER 1 COMPLETE" : "LEVEL COMPLETE";
+            string subtitle = levelData != null ? levelData.displayName : SceneManager.GetActiveScene().name;
+
+            var boxRect = new Rect(Screen.width * 0.5f - 280f, 26f, 560f, 92f);
+            GUI.Box(boxRect, GUIContent.none);
+
+            var titleStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 30,
+                fontStyle = FontStyle.Bold,
+                normal = { textColor = Color.white }
+            };
+            GUI.Label(new Rect(boxRect.x, boxRect.y + 10f, boxRect.width, 40f), title, titleStyle);
+
+            var subtitleStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 18,
+                normal = { textColor = Color.white }
+            };
+            GUI.Label(new Rect(boxRect.x, boxRect.y + 52f, boxRect.width, 28f), subtitle, subtitleStyle);
         }
 
         public void RequestResetLevel()

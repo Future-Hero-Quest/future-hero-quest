@@ -18,6 +18,8 @@ namespace FutureHeroQuest.Level
         [SerializeField] private bool allowInteractKey = true;
         [SerializeField] private KeyCode interactKey = KeyCode.E;
         [SerializeField] private float interactRadius = 2.2f;
+        [SerializeField] private GameObject promptUI;
+        [SerializeField] private bool completeLevelOnReach = true;
 
         private bool _sent;
         private Collider _zoneCollider;
@@ -36,13 +38,29 @@ namespace FutureHeroQuest.Level
 
         private void Update()
         {
-            if (!allowInteractKey || (_sent && sendOnce)) return;
-            if (!IsRoleAllowed()) return;
+            if (_sent && sendOnce)
+            {
+                SetPrompt(false);
+                return;
+            }
+
+            if (!IsRoleAllowed())
+            {
+                SetPrompt(false);
+                return;
+            }
 
             if (_localPlayer == null) FindLocalPlayer();
-            if (_localPlayer == null) return;
+            if (_localPlayer == null)
+            {
+                SetPrompt(false);
+                return;
+            }
 
-            if (Input.GetKeyDown(interactKey) && IsLocalPlayerInReach())
+            bool inReach = IsLocalPlayerInReach();
+            SetPrompt(inReach);
+
+            if (allowInteractKey && inReach && Input.GetKeyDown(interactKey))
             {
                 SendReach();
             }
@@ -65,11 +83,20 @@ namespace FutureHeroQuest.Level
             if (TimelineEventBus.Instance == null)
             {
                 Debug.LogError($"[{nameof(SemanticReachZone)}] TimelineEventBus is not ready.");
-                return;
+            }
+            else
+            {
+                TimelineEventBus.Instance.SendBidirectional(EventKind.ReachZone, targetId, transform.position);
             }
 
-            TimelineEventBus.Instance.SendBidirectional(EventKind.ReachZone, targetId, transform.position);
             _sent = true;
+            SetPrompt(false);
+
+            if (completeLevelOnReach && LevelManager.Instance != null)
+            {
+                LevelManager.Instance.NotifyReachTarget(targetId);
+            }
+
             Debug.Log($"[SemanticReachZone] Reached {targetId}");
         }
 
@@ -77,6 +104,16 @@ namespace FutureHeroQuest.Level
         {
             if (!restrictToRole) return true;
             return NetworkManager.Instance == null || NetworkManager.Instance.MyRole == requiredRole;
+        }
+
+        private void OnDisable()
+        {
+            SetPrompt(false);
+        }
+
+        private void SetPrompt(bool active)
+        {
+            if (promptUI != null) promptUI.SetActive(active);
         }
 
         private void FindLocalPlayer()

@@ -232,7 +232,7 @@ namespace FutureHeroQuest.EditorTools
 
             var exitPad = CreateCube("ExitPad_L3_Exit_Visual", parent, new Vector3(5.05f, 0.02f, 0f), new Vector3(1.8f, 0.04f, 2.6f), materials["exit"], false);
             exitPad.SetActive(false);
-            var exitLabel = CreateWorldText("Label_L3_Exit", "E: EXIT", parent, new Vector3(5.05f, 1.55f, -1.25f), materials["exit"].color, 0.065f);
+            var exitLabel = CreateWorldText("Label_L3_Exit", "E: EXIT", parent, new Vector3(5.05f, 1.75f, -1.25f), materials["exit"].color, 0.085f);
             exitLabel.SetActive(false);
             var exitZone = CreateCube("ExitZone_L3_Exit", parent, new Vector3(5.05f, 0.65f, 0f), new Vector3(2.0f, 1.3f, 3.0f), materials["exit"], true);
             var exitRenderer = exitZone.GetComponent<MeshRenderer>();
@@ -240,7 +240,7 @@ namespace FutureHeroQuest.EditorTools
             var exitCollider = exitZone.GetComponent<BoxCollider>();
             exitCollider.isTrigger = true;
             var reachZone = exitZone.AddComponent<SemanticReachZone>();
-            ConfigureReachZone(reachZone, "L3_Exit", GameRole.Future);
+            ConfigureReachZone(reachZone, "L3_Exit", GameRole.Future, exitLabel);
             exitZone.SetActive(false);
 
             var doorApplierGo = new GameObject("FinalDoor_LockState_Applier");
@@ -598,7 +598,7 @@ namespace FutureHeroQuest.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void ConfigureReachZone(SemanticReachZone reachZone, string targetId, GameRole role)
+        private static void ConfigureReachZone(SemanticReachZone reachZone, string targetId, GameRole role, GameObject prompt = null)
         {
             var so = new SerializedObject(reachZone);
             so.FindProperty("targetId").stringValue = targetId;
@@ -608,6 +608,8 @@ namespace FutureHeroQuest.EditorTools
             so.FindProperty("allowInteractKey").boolValue = true;
             so.FindProperty("interactKey").enumValueIndex = (int)KeyCode.E;
             so.FindProperty("interactRadius").floatValue = 2.2f;
+            so.FindProperty("promptUI").objectReferenceValue = prompt;
+            so.FindProperty("completeLevelOnReach").boolValue = true;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
