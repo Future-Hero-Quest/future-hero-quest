@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using FutureHeroQuest.Core;
 using FutureHeroQuest.Level;
@@ -49,6 +50,41 @@ namespace FutureHeroQuest.EditorTools
             Debug.Log("[FHQ] Built Level01_Bridge semantic loop.");
         }
 
+        [MenuItem("FHQ/Apply L1 Bridge Feedback Loop")]
+        public static void ApplyLevel01BridgeFeedbackLoop()
+        {
+            EnsureFolders();
+            var scene = EditorSceneManager.OpenScene(BridgeScenePath, OpenSceneMode.Single);
+
+            var whiteboxRoot = FindSceneGameObject("Level01_Bridge_Whitebox");
+            var pastZone = FindSceneGameObject("PastZone_1996_Warm");
+            var futureZone = FindSceneGameObject("FutureZone_2026_Cool");
+            if (whiteboxRoot == null || pastZone == null || futureZone == null)
+            {
+                Debug.LogError("[FHQ] Cannot apply L1 bridge feedback loop: expected Level01_Bridge whitebox objects are missing.");
+                return;
+            }
+
+            var existingFeedbackRoot = FindSceneGameObject("L1BridgeFeedbackLoop");
+            if (existingFeedbackRoot != null)
+                Object.DestroyImmediate(existingFeedbackRoot);
+
+            var feedbackRoot = new GameObject("L1BridgeFeedbackLoop");
+            feedbackRoot.transform.SetParent(whiteboxRoot.transform);
+
+            ApplyLevelDataFeedbackCopy();
+            ApplyPastRepairFeedback(pastZone.transform, feedbackRoot.transform);
+            ApplyFutureBridgeFeedback(futureZone.transform, feedbackRoot.transform);
+            UpdateExistingBridgeLabels();
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene, BridgeScenePath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            Debug.Log("[FHQ] Applied L1 Bridge feedback loop to existing Level01_Bridge scene.");
+        }
+
         private static void EnsureFolders()
         {
             Directory.CreateDirectory("Assets/Scenes");
@@ -81,6 +117,29 @@ namespace FutureHeroQuest.EditorTools
             data.SanitizeSerializedState();
             EditorUtility.SetDirty(data);
             return data;
+        }
+
+        private static void ApplyLevelDataFeedbackCopy()
+        {
+            var data = AssetDatabase.LoadAssetAtPath<LevelData>(LevelDataPath);
+            if (data == null) return;
+
+            data.passiveHintForPast = "Try a repair, then listen to the future bridge report.";
+            data.passiveHintForFuture = "Report whether the bridge is red, yellow, or green.";
+            data.pastDialogue = new[]
+            {
+                "B only is unstable.",
+                "A gets it halfway.",
+                "A plus C locks the bridge."
+            };
+            data.futureDialogue = new[]
+            {
+                "Red: still broken.",
+                "Yellow: half supported.",
+                "Green: cross now."
+            };
+            data.SanitizeSerializedState();
+            EditorUtility.SetDirty(data);
         }
 
         private static void CreateCameraAndLights()
@@ -245,6 +304,182 @@ namespace FutureHeroQuest.EditorTools
             CreateWorldText("ExitLabel", zone.transform, "EXIT", new Vector3(16.9f, 2.55f, 0f), 40, Color.white, 0.09f);
         }
 
+        private static void ApplyPastRepairFeedback(Transform pastZone, Transform feedbackRoot)
+        {
+            Material brokenMat = CreateMaterial("L1_StateBroken_Mat", new Color(0.88f, 0.16f, 0.13f));
+            Material halfMat = CreateMaterial("L1_StateHalfSupported_Mat", new Color(1f, 0.78f, 0.16f));
+            Material supportedMat = CreateMaterial("L1_StateSupported_Mat", new Color(0.22f, 0.9f, 0.38f));
+            Material fixedMat = CreateMaterial("L1_FixedSupport_Mat", new Color(0.28f, 0.72f, 0.35f));
+
+            var finalRepair = FindSceneGameObject("RepairSupportC_SendSupported")
+                ?? FindSceneGameObject("PastRepairPoint_SendBridgeState");
+            if (finalRepair != null)
+            {
+                finalRepair.name = "RepairSupportC_SendSupported";
+                finalRepair.transform.position = new Vector3(-12.4f, 0.08f, 1.45f);
+                finalRepair.transform.localScale = new Vector3(1.15f, 0.16f, 1.15f);
+                SetRendererMaterial(finalRepair, supportedMat);
+
+                var finalPrompt = FindSceneGameObject("RepairSupportC_Prompt") ?? FindSceneGameObject("RepairPrompt");
+                if (finalPrompt != null)
+                {
+                    finalPrompt.name = "RepairSupportC_Prompt";
+                    finalPrompt.transform.position = new Vector3(-12.4f, 1.55f, 1.45f);
+                    SetText(finalPrompt, "E: lock A + C supports");
+                    finalPrompt.SetActive(false);
+                }
+
+                var sender = finalRepair.GetComponent<SemanticStateSender>();
+                if (sender == null) sender = finalRepair.AddComponent<SemanticStateSender>();
+                ConfigureBridgeSender(sender, "Supported", finalPrompt);
+            }
+
+            var repairsRoot = new GameObject("PastRepairChoices");
+            repairsRoot.transform.SetParent(feedbackRoot);
+
+            CreateRepairChoice(
+                repairsRoot.transform,
+                "RepairSupportB_SendBroken",
+                new Vector3(-12.4f, 0.09f, -1.45f),
+                brokenMat,
+                "Broken",
+                "E: brace B only",
+                "B only",
+                new Vector3(-12.4f, 1.55f, -1.45f));
+
+            CreateRepairChoice(
+                repairsRoot.transform,
+                "RepairSupportA_SendHalfSupported",
+                new Vector3(-12.4f, 0.09f, 0f),
+                halfMat,
+                "HalfSupported",
+                "E: brace A only",
+                "A only",
+                new Vector3(-12.4f, 1.55f, 0f));
+
+            var halfSupportRoot = new GameObject("PastHalfSupportedVisual");
+            halfSupportRoot.transform.SetParent(feedbackRoot);
+            CreateCube("FixedSupport_A_Half", halfSupportRoot.transform, new Vector3(-9.8f, 0.7f, -1.15f), new Vector3(0.45f, 1.4f, 0.45f), fixedMat, true);
+            halfSupportRoot.SetActive(false);
+
+            var halfApplierGo = new GameObject("PastHalfSupportedApplier");
+            halfApplierGo.transform.SetParent(feedbackRoot);
+            var halfApplier = halfApplierGo.AddComponent<SemanticStateApplier>();
+            ConfigureBridgeApplier(halfApplier, "HalfSupported", new[] { halfSupportRoot }, System.Array.Empty<GameObject>());
+
+            CreateWorldText(
+                "PastFeedbackRuleLabel",
+                feedbackRoot,
+                "K tries repairs. M reports future color: red / yellow / green.",
+                new Vector3(-10.2f, 2.35f, 2.95f),
+                24,
+                Color.white,
+                0.065f);
+        }
+
+        private static void ApplyFutureBridgeFeedback(Transform futureZone, Transform feedbackRoot)
+        {
+            Material wallMat = CreateMaterial("L1_Future_Wall_Mat", new Color(0.2f, 0.42f, 0.56f));
+            Material halfMat = CreateMaterial("L1_StateHalfSupported_Mat", new Color(1f, 0.78f, 0.16f));
+            Material brokenMat = CreateMaterial("L1_StateBroken_Mat", new Color(0.88f, 0.16f, 0.13f));
+            Material supportedMat = CreateMaterial("L1_StateSupported_Mat", new Color(0.22f, 0.9f, 0.38f));
+
+            var bridgeRoot = FindSceneGameObject("FutureRestoredBridge_ActivatesOnBridgeState");
+            var brokenVisuals = FindSceneGameObject("FutureBrokenBridgeVisuals_DeactivatesOnRepair");
+            var gapBlocker = FindSceneGameObject("FutureCollapsedGapBlocker");
+
+            var halfBridge = new GameObject("FutureHalfSupportedBridgeVisual");
+            halfBridge.transform.SetParent(feedbackRoot);
+            var halfDeck = CreateCube("HalfSupportedSlantedDeck", halfBridge.transform, new Vector3(11.45f, 0.18f, 0f), new Vector3(2.15f, 0.18f, 4.6f), halfMat, false);
+            halfDeck.transform.rotation = Quaternion.Euler(0f, 0f, -8f);
+            CreateCube("HalfSupportedNorthRail", halfBridge.transform, new Vector3(11.45f, 0.88f, 2.25f), new Vector3(2.15f, 1.05f, 0.18f), wallMat, false);
+            CreateCube("HalfSupportedSouthRail", halfBridge.transform, new Vector3(11.45f, 0.58f, -2.25f), new Vector3(2.15f, 0.75f, 0.18f), wallMat, false);
+            halfBridge.SetActive(false);
+
+            var statusRoot = new GameObject("FutureBridgeStatusBoard");
+            statusRoot.transform.SetParent(feedbackRoot);
+            var brokenStatus = CreateStatusMarker(statusRoot.transform, "FutureStatus_Broken", new Vector3(9.2f, 1.45f, 2.65f), brokenMat, "RED: broken");
+            var halfStatus = CreateStatusMarker(statusRoot.transform, "FutureStatus_HalfSupported", new Vector3(11.5f, 1.45f, 2.65f), halfMat, "YELLOW: half");
+            var supportedStatus = CreateStatusMarker(statusRoot.transform, "FutureStatus_Supported", new Vector3(13.8f, 1.45f, 2.65f), supportedMat, "GREEN: cross");
+            brokenStatus.SetActive(true);
+            halfStatus.SetActive(false);
+            supportedStatus.SetActive(false);
+
+            var brokenApplierGo = new GameObject("FutureBridgeBrokenApplier");
+            brokenApplierGo.transform.SetParent(feedbackRoot);
+            var brokenApplier = brokenApplierGo.AddComponent<SemanticStateApplier>();
+            ConfigureBridgeApplier(
+                brokenApplier,
+                "Broken",
+                FilterNull(brokenVisuals, gapBlocker, brokenStatus),
+                FilterNull(halfBridge, bridgeRoot, halfStatus, supportedStatus));
+
+            var halfApplierGo = new GameObject("FutureBridgeHalfSupportedApplier");
+            halfApplierGo.transform.SetParent(feedbackRoot);
+            var halfApplier = halfApplierGo.AddComponent<SemanticStateApplier>();
+            ConfigureBridgeApplier(
+                halfApplier,
+                "HalfSupported",
+                FilterNull(halfBridge, gapBlocker, halfStatus),
+                FilterNull(brokenVisuals, bridgeRoot, brokenStatus, supportedStatus));
+
+            var supportedApplier = FindSceneGameObject("FutureBridgeStateApplier")?.GetComponent<SemanticStateApplier>();
+            if (supportedApplier != null)
+            {
+                ConfigureBridgeApplier(
+                    supportedApplier,
+                    "Supported",
+                    FilterNull(bridgeRoot, supportedStatus),
+                    FilterNull(gapBlocker, brokenVisuals, halfBridge, brokenStatus, halfStatus));
+            }
+
+            CreateWorldText(
+                "FutureFeedbackRuleLabel",
+                feedbackRoot,
+                "M observes result, then tells K which support is missing.",
+                new Vector3(11.5f, 2.35f, 3.05f),
+                24,
+                Color.white,
+                0.065f);
+        }
+
+        private static GameObject CreateRepairChoice(
+            Transform parent,
+            string name,
+            Vector3 position,
+            Material material,
+            string stateValue,
+            string promptText,
+            string floorLabel,
+            Vector3 promptPosition)
+        {
+            var marker = CreateCube(name, parent, position, new Vector3(1.15f, 0.16f, 1.15f), material, true);
+            var sender = marker.AddComponent<SemanticStateSender>();
+            var prompt = CreateWorldText($"{name}_Prompt", parent, promptText, promptPosition, 28, Color.white, 0.07f);
+            prompt.gameObject.SetActive(false);
+            ConfigureBridgeSender(sender, stateValue, prompt.gameObject);
+
+            CreateWorldText($"{name}_Label", parent, floorLabel, position + new Vector3(0f, 0.08f, 0f), 24, Color.black, 0.06f);
+            return marker;
+        }
+
+        private static GameObject CreateStatusMarker(Transform parent, string name, Vector3 position, Material material, string label)
+        {
+            var root = new GameObject(name);
+            root.transform.SetParent(parent);
+            CreateCube($"{name}_Light", root.transform, position, new Vector3(0.42f, 0.42f, 0.42f), material, false);
+            CreateWorldText($"{name}_Label", root.transform, label, position + new Vector3(0f, 0.55f, 0f), 22, Color.white, 0.055f);
+            return root;
+        }
+
+        private static void UpdateExistingBridgeLabels()
+        {
+            SetText(FindSceneGameObject("FutureHintLabel"), "Report bridge result: red / yellow / green");
+            SetText(FindSceneGameObject("FutureAreaLabel"), "2026 / Future: observe bridge result");
+            SetText(FindSceneGameObject("PastHintLabel"), "Repair B, A, or A+C based on M's report");
+            SetText(FindSceneGameObject("GoalLabel"), "Level 1: Future observes -> Past corrects repair");
+        }
+
         private static void CreateSharedLabels(Transform parent)
         {
             CreateWorldText("GoalLabel", parent, "Level 1: Past repairs -> Future crosses", new Vector3(1f, 2.7f, 3.65f), 38, Color.white, 0.09f);
@@ -347,11 +582,44 @@ namespace FutureHeroQuest.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        private static void ConfigureBridgeSender(SemanticStateSender sender, string stateValue, GameObject prompt)
+        {
+            var so = new SerializedObject(sender);
+            so.FindProperty("eventKind").enumValueIndex = (int)EventKind.SetBridgeState;
+            so.FindProperty("direction").enumValueIndex = (int)EventDirection.PastToFuture;
+            so.FindProperty("stateKey").stringValue = "BridgeState";
+            so.FindProperty("stateValue").stringValue = stateValue;
+            so.FindProperty("targetId").stringValue = "L1_Bridge";
+            so.FindProperty("restrictToRole").boolValue = true;
+            so.FindProperty("requiredRole").enumValueIndex = (int)GameRole.Past;
+            so.FindProperty("interactRadius").floatValue = 1.65f;
+            so.FindProperty("interactKey").intValue = (int)KeyCode.E;
+            so.FindProperty("sendOnce").boolValue = true;
+            so.FindProperty("promptUI").objectReferenceValue = prompt;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         private static void ConfigureApplier(SemanticStateApplier applier, GameObject[] activateOnMatch, GameObject[] deactivateOnMatch)
         {
             var so = new SerializedObject(applier);
             so.FindProperty("stateKey").stringValue = "BridgeState";
             so.FindProperty("expectedValue").stringValue = "Supported";
+            so.FindProperty("targetId").stringValue = "L1_Bridge";
+            so.FindProperty("applyExistingStateOnEnable").boolValue = true;
+            SetGameObjectArray(so.FindProperty("activateOnMatch"), activateOnMatch);
+            SetGameObjectArray(so.FindProperty("deactivateOnMatch"), deactivateOnMatch);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void ConfigureBridgeApplier(
+            SemanticStateApplier applier,
+            string expectedValue,
+            GameObject[] activateOnMatch,
+            GameObject[] deactivateOnMatch)
+        {
+            var so = new SerializedObject(applier);
+            so.FindProperty("stateKey").stringValue = "BridgeState";
+            so.FindProperty("expectedValue").stringValue = expectedValue;
             so.FindProperty("targetId").stringValue = "L1_Bridge";
             so.FindProperty("applyExistingStateOnEnable").boolValue = true;
             SetGameObjectArray(so.FindProperty("activateOnMatch"), activateOnMatch);
@@ -375,6 +643,50 @@ namespace FutureHeroQuest.EditorTools
             for (int i = 0; i < objects.Length; i++)
             {
                 property.GetArrayElementAtIndex(i).objectReferenceValue = objects[i];
+            }
+        }
+
+        private static GameObject[] FilterNull(params GameObject[] objects)
+        {
+            var filtered = new List<GameObject>();
+            foreach (GameObject obj in objects)
+            {
+                if (obj != null) filtered.Add(obj);
+            }
+            return filtered.ToArray();
+        }
+
+        private static GameObject FindSceneGameObject(string objectName)
+        {
+            var activeScene = EditorSceneManager.GetActiveScene();
+            foreach (GameObject go in Resources.FindObjectsOfTypeAll<GameObject>())
+            {
+                if (go.name == objectName && go.scene == activeScene)
+                    return go;
+            }
+
+            return null;
+        }
+
+        private static void SetText(GameObject obj, string text)
+        {
+            if (obj == null) return;
+            var textMesh = obj.GetComponent<TextMesh>();
+            if (textMesh != null)
+            {
+                textMesh.text = text;
+                EditorUtility.SetDirty(textMesh);
+            }
+        }
+
+        private static void SetRendererMaterial(GameObject obj, Material material)
+        {
+            if (obj == null || material == null) return;
+            var renderer = obj.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.sharedMaterial = material;
+                EditorUtility.SetDirty(renderer);
             }
         }
 

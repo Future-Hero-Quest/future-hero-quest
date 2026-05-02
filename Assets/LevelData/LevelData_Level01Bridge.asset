@@ -19,13 +19,15 @@ MonoBehaviour:
   futureDateLabel: 2026
   randomSeed: 10101
   pastDialogue:
-  - Support point marked.
-  - Repair complete.
+  - B only is unstable.
+  - A gets it halfway.
+  - A plus C locks the bridge.
   futureDialogue:
-  - Bridge is broken.
-  - Bridge restored.
+  - 'Red: still broken.'
+  - 'Yellow: half supported.'
+  - 'Green: cross now.'
   passiveHintAfterSeconds: 120
-  passiveHintForFuture: Wait for the bridge to recover, then cross.
-  passiveHintForPast: Repair the bridge support marker.
+  passiveHintForFuture: Report whether the bridge is red, yellow, or green.
+  passiveHintForPast: Try a repair, then listen to the future bridge report.
   completeCondition: 0
   targetIdRequired: L1_Exit
