@@ -20,6 +20,17 @@ namespace FutureHeroQuest.Core
         ToggleSwitch,         // 双方各自拨开关 (past_sw_X / future_sw_X)
         DoorUnlocked,         // pattern 对齐 -> Host 仲裁 -> 门开
 
+        // v3 语义状态同步
+        SetBridgeState,
+        SetClueState,
+        SetCabinetState,
+        SetKeyState,
+        SetBallResult,
+        SetLockState,
+        SetDoorState,
+        SetSemanticState,
+        ReachZone,
+
         // 通用
         MoveBox,
         BreakWall,
@@ -50,6 +61,8 @@ namespace FutureHeroQuest.Core
         public EventKind Kind;
         public EventDirection Direction;
         public string TargetId;
+        public string StateKey;
+        public string StateValue;
         public Vector3 Payload;
         public float Timestamp;
         public int SenderActorNumber;
@@ -59,10 +72,28 @@ namespace FutureHeroQuest.Core
             EventId = Guid.NewGuid().ToString("N");
             Kind = kind;
             Direction = dir;
-            TargetId = targetId;
+            TargetId = targetId?.Trim() ?? string.Empty;
+            StateKey = string.Empty;
+            StateValue = string.Empty;
             Payload = payload;
             Timestamp = Time.time;
             SenderActorNumber = senderActor;
         }
+
+        public TimelineEvent(
+            EventKind kind,
+            EventDirection dir,
+            string targetId,
+            string stateKey,
+            string stateValue,
+            Vector3 payload,
+            int senderActor)
+            : this(kind, dir, targetId, payload, senderActor)
+        {
+            StateKey = stateKey?.Trim() ?? string.Empty;
+            StateValue = stateValue?.Trim() ?? string.Empty;
+        }
+
+        public bool HasSemanticState => !string.IsNullOrEmpty(StateKey);
     }
 }

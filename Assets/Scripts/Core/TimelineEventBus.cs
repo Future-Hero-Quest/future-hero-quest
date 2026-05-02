@@ -37,23 +37,69 @@ namespace FutureHeroQuest.Core
 
         public void SendEvent(EventKind kind, EventDirection direction, string targetId, Vector3 payload)
         {
+            if (!CanSend(direction, kind)) return;
+            int actor = PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : 0;
+            var evt = new TimelineEvent(kind, direction, targetId, payload, actor);
+            Publish(evt);
+        }
+
+        public void SendStateEvent(
+            EventKind kind,
+            EventDirection direction,
+            string stateKey,
+            string stateValue,
+            string targetId = "",
+            Vector3 payload = default)
+        {
+            if (string.IsNullOrWhiteSpace(stateKey))
+            {
+                Debug.LogWarning($"[TimelineEventBus] Ignored semantic state event {kind}: stateKey is empty.");
+                return;
+            }
+
+            if (!CanSend(direction, kind)) return;
+            int actor = PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : 0;
+            var evt = new TimelineEvent(kind, direction, targetId, stateKey, stateValue, payload, actor);
+            Publish(evt);
+        }
+
+        public void SendPastStateEvent(EventKind kind, string stateKey, string stateValue, string targetId = "", Vector3 payload = default)
+        {
+            SendStateEvent(kind, EventDirection.PastToFuture, stateKey, stateValue, targetId, payload);
+        }
+
+        public void SendFutureStateEvent(EventKind kind, string stateKey, string stateValue, string targetId = "", Vector3 payload = default)
+        {
+            SendStateEvent(kind, EventDirection.FutureToPast, stateKey, stateValue, targetId, payload);
+        }
+
+        public void SendBidirectionalStateEvent(EventKind kind, string stateKey, string stateValue, string targetId = "", Vector3 payload = default)
+        {
+            SendStateEvent(kind, EventDirection.Bidirectional, stateKey, stateValue, targetId, payload);
+        }
+
+        private void Publish(TimelineEvent evt)
+        {
+            string json = JsonUtility.ToJson(evt);
+            photonView.RPC(nameof(RPC_ReceiveEvent), RpcTarget.AllViaServer, json);
+        }
+
+        private bool CanSend(EventDirection direction, EventKind kind)
+        {
             var role = NetworkManager.Instance != null ? NetworkManager.Instance.MyRole : GameRole.Past;
 
             if (direction == EventDirection.PastToFuture && role != GameRole.Past)
             {
                 Debug.LogWarning($"[TimelineEventBus] PastToFuture event {kind} can only be sent by Past player.");
-                return;
+                return false;
             }
             if (direction == EventDirection.FutureToPast && role != GameRole.Future)
             {
                 Debug.LogWarning($"[TimelineEventBus] FutureToPast event {kind} can only be sent by Future player.");
-                return;
+                return false;
             }
 
-            int actor = PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : 0;
-            var evt = new TimelineEvent(kind, direction, targetId, payload, actor);
-            string json = JsonUtility.ToJson(evt);
-            photonView.RPC(nameof(RPC_ReceiveEvent), RpcTarget.AllViaServer, json);
+            return true;
         }
 
         public void SendPastEvent(EventKind kind, string targetId, Vector3 payload)
@@ -92,6 +138,8 @@ namespace FutureHeroQuest.Core
         public void ClearHistory()
         {
             _eventHistory.Clear();
+            if (SemanticStateStore.Instance != null)
+                SemanticStateStore.Instance.ClearStates();
         }
 
         public IReadOnlyList<TimelineEvent> History => _eventHistory;
