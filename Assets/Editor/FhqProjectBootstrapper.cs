@@ -24,6 +24,8 @@ namespace FutureHeroQuest.EditorTools
         private const string LauncherScenePath = "Assets/Scenes/Launcher.unity";
         private const string LevelScenePath = "Assets/Scenes/Level01_Tree.unity";
         private const string BridgeLevelScenePath = "Assets/Scenes/Level01_Bridge.unity";
+        private const string ArchiveLevelScenePath = "Assets/Scenes/Level02_Archive.unity";
+        private const string ClubRoomLevelScenePath = "Assets/Scenes/Level03_ClubRoom.unity";
         private const string PastPrefabPath = "Assets/Prefabs/Resources/PastPlayer.prefab";
         private const string FuturePrefabPath = "Assets/Prefabs/Resources/FuturePlayer.prefab";
 
@@ -51,10 +53,8 @@ namespace FutureHeroQuest.EditorTools
             string output = Path.GetFullPath(Path.Combine(Application.dataPath, "../../FHQ-Workspace/build/NetworkDemoWin/FutureHeroQuest.exe"));
             Directory.CreateDirectory(Path.GetDirectoryName(output));
 
-            string firstLevelScenePath = File.Exists(BridgeLevelScenePath) ? BridgeLevelScenePath : LevelScenePath;
-
             var report = BuildPipeline.BuildPlayer(
-                new[] { LauncherScenePath, firstLevelScenePath },
+                GetBuildScenePaths().ToArray(),
                 output,
                 BuildTarget.StandaloneWindows64,
                 BuildOptions.Development);
@@ -83,18 +83,34 @@ namespace FutureHeroQuest.EditorTools
             CreatePlayerPrefab(FuturePrefabPath, "FuturePlayer", new Color(0.2f, 0.95f, 0.75f));
             CreateLauncherScene();
             CreateLevelScene();
-            var scenes = new List<EditorBuildSettingsScene>
+            var scenes = new List<EditorBuildSettingsScene>();
+            foreach (string scenePath in GetBuildScenePaths())
             {
-                new EditorBuildSettingsScene(LauncherScenePath, true),
-            };
-            if (File.Exists(BridgeLevelScenePath))
-                scenes.Add(new EditorBuildSettingsScene(BridgeLevelScenePath, true));
-            scenes.Add(new EditorBuildSettingsScene(LevelScenePath, true));
+                scenes.Add(new EditorBuildSettingsScene(scenePath, true));
+            }
             EditorBuildSettings.scenes = scenes.ToArray();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene(LauncherScenePath);
             Debug.Log("[FHQ] Network demo bootstrap complete. Open Launcher, enter Play, then Create/Join room.");
+        }
+
+        private static List<string> GetBuildScenePaths()
+        {
+            var scenePaths = new List<string> { LauncherScenePath };
+            scenePaths.Add(File.Exists(BridgeLevelScenePath) ? BridgeLevelScenePath : LevelScenePath);
+
+            if (File.Exists(ArchiveLevelScenePath))
+                scenePaths.Add(ArchiveLevelScenePath);
+            else
+                Debug.LogWarning($"[FHQ] Build scene missing: {ArchiveLevelScenePath}");
+
+            if (File.Exists(ClubRoomLevelScenePath))
+                scenePaths.Add(ClubRoomLevelScenePath);
+            else
+                Debug.LogWarning($"[FHQ] Build scene missing: {ClubRoomLevelScenePath}");
+
+            return scenePaths;
         }
 
         private static void EnsureFolders()
@@ -311,7 +327,7 @@ namespace FutureHeroQuest.EditorTools
 
         private static void CreateEventSystem()
         {
-            if (Object.FindFirstObjectByType<EventSystem>() != null) return;
+            if (Object.FindAnyObjectByType<EventSystem>() != null) return;
             var go = new GameObject("EventSystem");
             go.AddComponent<EventSystem>();
             go.AddComponent<StandaloneInputModule>();

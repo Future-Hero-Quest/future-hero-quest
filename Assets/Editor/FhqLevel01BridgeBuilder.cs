@@ -383,7 +383,7 @@ namespace FutureHeroQuest.EditorTools
 
         private static void CreateEventSystem()
         {
-            if (Object.FindFirstObjectByType<EventSystem>() != null) return;
+            if (Object.FindAnyObjectByType<EventSystem>() != null) return;
             var go = new GameObject("EventSystem");
             go.AddComponent<EventSystem>();
             go.AddComponent<StandaloneInputModule>();

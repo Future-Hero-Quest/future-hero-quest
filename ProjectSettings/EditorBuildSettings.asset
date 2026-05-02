@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Level01_Bridge.unity
     guid: 0dfae6265b603d243948b70baf892ad6
   - enabled: 1
-    path: Assets/Scenes/Level01_Tree.unity
-    guid: e080613dd2046d44984da1143e06ee82
+    path: Assets/Scenes/Level02_Archive.unity
+    guid: cfcd97d11b6bea040b7292983c729d54
+  - enabled: 1
+    path: Assets/Scenes/Level03_ClubRoom.unity
+    guid: 8cc7983ed9fd0a9459adb4c07c66762d
   m_configObjects: {}
