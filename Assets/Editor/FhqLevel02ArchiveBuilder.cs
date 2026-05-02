@@ -55,6 +55,7 @@ namespace FutureHeroQuest.EditorTools
             CreatePastArchiveProps(root.transform, wood, cabinet, key, clue, wrong);
             CreateFutureArchiveProps(root.transform, wood, cabinet, dark, clue, locked, unlocked, wrong, missing);
             CreateSemanticLoop(root.transform, clue, key, locked, unlocked, wrong, missing);
+            CreateInitialKeyState(root.transform);
 
             CreateLevelManager(levelData);
             CreatePlayerSpawner();
@@ -302,6 +303,21 @@ namespace FutureHeroQuest.EditorTools
             var serialized = new SerializedObject(manager);
             serialized.FindProperty("levelData").objectReferenceValue = levelData;
             serialized.FindProperty("nextLevelScene").stringValue = "";
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateInitialKeyState(Transform parent)
+        {
+            var initializer = new GameObject("Semantic_KeyState_Missing_Initializer");
+            initializer.transform.SetParent(parent, false);
+            var sender = initializer.AddComponent<SemanticInitialStateSender>();
+            var serialized = new SerializedObject(sender);
+            serialized.FindProperty("eventKind").enumValueIndex = (int)EventKind.SetKeyState;
+            serialized.FindProperty("direction").enumValueIndex = (int)EventDirection.Bidirectional;
+            serialized.FindProperty("stateKey").stringValue = "KeyState";
+            serialized.FindProperty("stateValue").stringValue = "Missing";
+            serialized.FindProperty("targetId").stringValue = "L2_Key";
+            serialized.FindProperty("sendDelaySeconds").floatValue = 0.25f;
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
