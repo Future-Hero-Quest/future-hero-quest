@@ -49,6 +49,8 @@ namespace FutureHeroQuest.Level
         private SemanticStateStore _store;
         private bool _isBroken;
 
+        public bool IsBroken => _isBroken;
+
         private void Awake()
         {
             CollectFragmentsIfNeeded();
@@ -83,6 +85,13 @@ namespace FutureHeroQuest.Level
             ApplyBroken(true);
         }
 
+        [ContextMenu("Break Local")]
+        public void BreakLocal()
+        {
+            ApplyBroken(true);
+        }
+
+        [ContextMenu("Reset To Intact")]
         public void ResetToIntact()
         {
             ApplyIntact();
@@ -152,7 +161,7 @@ namespace FutureHeroQuest.Level
                 {
                     if (rb == null) continue;
 
-                    if (!broken) ClearVelocity(rb);
+                    if (!broken && !rb.isKinematic) ClearVelocity(rb);
                     if (makeFragmentsKinematicUntilBroken) rb.isKinematic = !broken;
                     if (freezeConstraintsUntilBroken)
                         rb.constraints = broken ? RigidbodyConstraints.None : RigidbodyConstraints.FreezeAll;
