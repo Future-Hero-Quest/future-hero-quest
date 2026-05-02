@@ -13,7 +13,7 @@
 
 **Future Hero Quest** 是一个黑客松项目：一名玩家位于 1996 年，另一名玩家位于 2026 年。两人看到的是同一地点在不同时代的状态，需要通过沟通、观察反馈、触发机关，把过去的改变传递到未来。
 
-当前版本聚焦提交验收：三个紧凑关卡、Windows 首发、Photon 双人联网、语义事件驱动的时间线同步。关卡内容已经冻结，后续只做验收、修复和发布准备。
+当前版本聚焦黑客松提交验收：三个紧凑关卡、Windows 首发、Photon 双人联网、语义事件驱动的时间线同步。`v1.0` 是 **Hackathon Submission Cut**，代表“能交、能玩、能展示概念”，不是项目内容的终点。
 
 ---
 
@@ -25,12 +25,30 @@
 | 渲染管线 | Built-in |
 | 联网方案 | Photon PUN2 |
 | 目标平台 | Windows |
-| 当前验收基线 | `origin/dev=125e6c8` |
+| 当前验收基线 | `origin/dev` |
 | 最后玩法集成 | `c4d742d` |
-| GitHub 首页 | `origin/main` 已同步中文门面文档 |
+| GitHub 首页 | `origin/main` 已同步中文门面与路线文档 |
 | 提交截止 | `2026-05-03 19:00 UTC+8` |
 
 > 发布规则：`dev` 是当前可玩集成分支。`main` 现在只同步公开文档门面，最终玩法代码需要等 Editor + exe 双端验收通过后再从 `dev` 推进到 `main`。
+
+## 版本路线
+
+```mermaid
+flowchart LR
+    V1["v1.0<br/>黑客松提交版"] --> V11["v1.1<br/>体验修正"]
+    V11 --> V15["v1.5<br/>完整短篇版"]
+    V15 --> V2["v2.0<br/>扩展 Demo"]
+    V2 --> V3["v3.0<br/>正式项目方向"]
+```
+
+| 阶段 | 目标 | 当前处理 |
+|---|---|---|
+| v1.0 · Hackathon Submission Cut | 可下载、可运行、双人可验收、页面可信 | DDL 前唯一发布目标 |
+| v1.1 · Playability Patch | 目标提示、交互反馈、房间流程更清楚 | 提交后评估 |
+| v1.5 · Short Story Cut | 开场、结尾、角色身份、统一 UI/音频 | 提交后评估 |
+| v2.0 · Expanded Demo | 更多关卡、WebGL/Mac、更完整联网体验 | 提交后评估 |
+| v3.0 · Project Direction | 判断是否继续做成正式项目 | 提交后评估 |
 
 ## 游戏流程
 
@@ -114,6 +132,7 @@ E:\黑客松\FHQ-Workspace\build\NetworkDemoWin\FutureHeroQuest.exe
 | 文档 | 用途 |
 |---|---|
 | [`docs/THREAD_PLAN.md`](docs/THREAD_PLAN.md) | 当前发布阶段线程 Plan 与里程碑定义 |
+| [`docs/CONTENT_ROADMAP.md`](docs/CONTENT_ROADMAP.md) | v1.0 之后的大内容方向与版本路线 |
 | [`docs/RELEASE_ACCEPTANCE.md`](docs/RELEASE_ACCEPTANCE.md) | 最终验收清单 |
 | [`docs/ITCH_PAGE.md`](docs/ITCH_PAGE.md) | itch.io 页面草稿 |
 | [`docs/PLAN.md`](docs/PLAN.md) | 原始计划与当前发布修订 |
