@@ -208,10 +208,10 @@ namespace FutureHeroQuest.EditorTools
             Camera sceneCamera = FindInScene(scene, "Main Camera")?.GetComponent<Camera>();
             if (sceneCamera != null)
             {
-                sceneCamera.transform.position = new Vector3(-1.15f, 5.35f, -4.0f);
-                sceneCamera.transform.rotation = Quaternion.Euler(53f, 0f, 0f);
-                sceneCamera.orthographic = true;
-                sceneCamera.orthographicSize = 4.15f;
+                sceneCamera.transform.position = new Vector3(0f, 2.4f, -7.2f);
+                sceneCamera.transform.rotation = Quaternion.Euler(8f, 0f, 0f);
+                sceneCamera.orthographic = false;
+                sceneCamera.fieldOfView = 72f;
                 sceneCamera.rect = new Rect(0f, 0f, 1f, 1f);
                 sceneCamera.depth = 0f;
             }
@@ -391,8 +391,8 @@ namespace FutureHeroQuest.EditorTools
 
             Camera sceneCamera = FindInScene(scene, "Main Camera")?.GetComponent<Camera>();
             if (sceneCamera == null) failures.Add("Scene02 missing Main Camera");
-            else if (!sceneCamera.orthographic || sceneCamera.orthographicSize > 5.8f)
-                failures.Add("Scene02 camera is still too wide for fracture playback");
+            else if (!IsAcceptableGameplayCamera(sceneCamera))
+                failures.Add("Scene02 camera is not configured for first-person fracture playback");
 
             Camera secondarySceneCamera = FindInScene(scene, SecondaryCameraName)?.GetComponent<Camera>();
             if (secondarySceneCamera == null) failures.Add("Scene02 missing secondary dual-view camera");
@@ -438,6 +438,16 @@ namespace FutureHeroQuest.EditorTools
             SetBool(projector, "autoFitBoundsFromStaticColliders", true);
             SetFloat(projector, "staticBoundsPadding", 4f);
             SetFloat(projector, "verticalBoundsPadding", 12f);
+        }
+
+        private static bool IsAcceptableGameplayCamera(Camera camera)
+        {
+            if (camera.orthographic)
+            {
+                return camera.orthographicSize <= 5.8f;
+            }
+
+            return camera.fieldOfView > 45f && camera.fieldOfView <= 82f;
         }
 
         private static void RemoveDuplicateRootManagers(Scene scene, GameObject sceneRoot)

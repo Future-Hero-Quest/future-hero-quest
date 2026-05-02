@@ -319,7 +319,7 @@ namespace FutureHeroQuest.SceneFlow
 
         private void ApplyGameplayCameraFrame(bool snap)
         {
-            if (PlayerController.LocalViewOwnsCamera)
+            if (LocalViewOwnsGameplayCamera())
             {
                 ApplySecondaryCameraFrame();
                 return;
@@ -376,9 +376,13 @@ namespace FutureHeroQuest.SceneFlow
 
         private void PlayImpactCameraFrame()
         {
-            if (PlayerController.LocalViewOwnsCamera)
+            if (LocalViewOwnsGameplayCamera())
             {
-                PlayerController.AddLocalCameraShake(cameraShakeDuration, cameraShakeAmount * 1.75f);
+                if (PlayerController.LocalViewOwnsCamera)
+                {
+                    PlayerController.AddLocalCameraShake(cameraShakeDuration, cameraShakeAmount * 1.75f);
+                }
+
                 ApplySecondaryCameraFrame();
                 return;
             }
@@ -445,6 +449,11 @@ namespace FutureHeroQuest.SceneFlow
             targetCamera.depth = 0f;
 
             ApplySecondaryCameraFrame();
+        }
+
+        private static bool LocalViewOwnsGameplayCamera()
+        {
+            return PlayerController.LocalViewOwnsCamera || OutlineLocalPlayerController.LocalViewOwnsCamera;
         }
 
         private void ApplySecondaryCameraFrame()

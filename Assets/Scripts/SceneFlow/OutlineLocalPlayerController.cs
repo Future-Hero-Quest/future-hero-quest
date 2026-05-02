@@ -6,6 +6,7 @@ namespace FutureHeroQuest.SceneFlow
     public class OutlineLocalPlayerController : MonoBehaviour
     {
         public static OutlineLocalPlayerController LocalPlayer { get; private set; }
+        public static bool LocalViewOwnsCamera => LocalPlayer != null;
 
         private static readonly string[] InteractableTypeNames =
         {
