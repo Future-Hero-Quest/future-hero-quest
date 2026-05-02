@@ -19,13 +19,16 @@ MonoBehaviour:
   futureDateLabel: 2026
   randomSeed: 314
   pastDialogue:
-  - Cabinet 2 is reacting.
-  - The spare key is in place.
+  - Wrong file gives Future a warning.
+  - Archive 314 is the right file.
   futureDialogue:
-  - Archive 314 points to cabinet 2.
-  - The cabinet door is unlocked.
+  - KeyState starts Missing.
+  - WrongFile stays locked.
+  - Placed enables the lock console.
+  - Unlocked opens the exit.
   passiveHintAfterSeconds: 120
-  passiveHintForFuture: Read the archive clue, then wait for the key.
-  passiveHintForPast: Use the highlighted cabinet to place the key.
+  passiveHintForFuture: Check the locked cabinet result, then guide Past to fix the
+    file.
+  passiveHintForPast: Use Future feedback to choose the right archive file.
   completeCondition: 0
   targetIdRequired: L2_Exit
