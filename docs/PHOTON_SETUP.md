@@ -83,4 +83,3 @@ git restore --staged Assets/Photon/PhotonUnityNetworking/Resources/PhotonServerS
 ### 是否可以把 AppID 发到 GitHub？
 
 不可以。AppID 绑定 Photon quota，不是传统密码，但进 Git 历史后很难彻底移除。只允许私下发送给队友。
-
