@@ -29,6 +29,20 @@ Assets are copied under `Assets/ThirdParty` so they can be imported by Unity wit
 | Level 2: Archive Room | Kenney Furniture Kit, Door Open SFX, Opening and Closing a Map Sounds, Kenney Interface Sounds |
 | Level 3: Old Club Room | OpenGameArt Billiards Pack, Kenney Furniture Kit, 75 CC0 Breaking / Falling / Hit SFX, Kenney Sci-fi Sounds |
 
+## Rescue Pass Usage Map
+
+No new third-party source packages were added for the art/audio rescue pass. The new project prefabs under `Assets/Prefabs/Art` and `Assets/Prefabs/Audio` only reference the packages already listed above.
+
+| New Project Asset | Third-Party Sources Used | License Files |
+| --- | --- | --- |
+| `Assets/Prefabs/Art/FHQ_L1_Bridge_ArtKit.prefab` | Kenney Nature Kit bridge, rock, grass, log, plank models | `Licenses/Kenney_Nature_Kit_CC0.md` |
+| `Assets/Prefabs/Art/FHQ_L2_Archive_ArtKit.prefab` | Kenney Furniture Kit shelves, desk, books, boxes, terminal, doorway models | `Licenses/Kenney_Furniture_Kit_CC0.md` |
+| `Assets/Prefabs/Art/FHQ_L3_ClubRoom_ArtKit.prefab` | OpenGameArt Billiards Pack table/balls/cue models, Kenney Furniture Kit furniture | `Licenses/OpenGameArt_Billiards_Pack_CC0.md`, `Licenses/Kenney_Furniture_Kit_CC0.md` |
+| `Assets/Prefabs/Audio/FHQ_Global_AmbientLoop.prefab` | Quantum Stone, Scifi City Ambient Loop | `Licenses/OpenGameArt_Quantum_Stone_CC0.md`, `Licenses/OpenGameArt_Scifi_City_Ambient_Loop_CC0.md` |
+| `Assets/Prefabs/Audio/FHQ_L1_Bridge_AudioCues.prefab` | Insistent, Kenney Interface Sounds, Kenney Digital Audio, 75 CC0 Breaking / Falling / Hit SFX | `Licenses/OpenGameArt_Insistent_CC0.md`, `Licenses/Kenney_Interface_Sounds_CC0.md`, `Licenses/Kenney_Digital_Audio_CC0.md`, `Licenses/OpenGameArt_Breaking_Falling_Hit_SFX_CC0.md` |
+| `Assets/Prefabs/Audio/FHQ_L2_Archive_AudioCues.prefab` | Quantum Stone, Opening and Closing a Map Sounds, Door Open SFX, Kenney Interface Sounds | `Licenses/OpenGameArt_Quantum_Stone_CC0.md`, `Licenses/OpenGameArt_Map_Paper_Sounds_CC0.md`, `Licenses/OpenGameArt_Door_Open_SFX_CC0.md`, `Licenses/Kenney_Interface_Sounds_CC0.md` |
+| `Assets/Prefabs/Audio/FHQ_L3_ClubRoom_AudioCues.prefab` | Scifi City Ambient Loop, 75 CC0 Breaking / Falling / Hit SFX, Kenney Digital Audio, Kenney Sci-fi Sounds | `Licenses/OpenGameArt_Scifi_City_Ambient_Loop_CC0.md`, `Licenses/OpenGameArt_Breaking_Falling_Hit_SFX_CC0.md`, `Licenses/Kenney_Digital_Audio_CC0.md`, `Licenses/Kenney_SciFi_Sounds_CC0.md` |
+
 ## Manual Processing Still Needed
 
 These assets are imported as raw source assets only. They are not wired into scenes yet.
