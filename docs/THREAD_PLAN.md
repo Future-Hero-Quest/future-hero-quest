@@ -6,6 +6,8 @@ DDL：2026-05-03 19:00 UTC+8
 
 本文档是当前阶段的线程调度权威。旧 `PLAN.md` 保留完整历史设计和最初 46 小时方案；从现在到提交前，执行优先级以本文档为准。
 
+大的内容方向和 v1.0 之后路线见 `docs/CONTENT_ROADMAP.md`。本文档只处理 v1.0 发布执行。
+
 ## 核心判断
 
 `v1.0` 不代表完整商业版，也不代表所有理想功能完成。
@@ -18,8 +20,8 @@ DDL：2026-05-03 19:00 UTC+8
 
 | 项目 | 当前值 |
 |---|---|
-| 验收分支 | `origin/dev=d48de19` |
-| GitHub 默认分支 | `origin/main=3b6dea5`，docs-only 门面同步 |
+| 验收分支 | `origin/dev` |
+| GitHub 默认分支 | `origin/main`，docs-only 门面同步 |
 | 最后玩法集成提交 | `c4d742d merge: integrate art audio rescue pass` |
 | Unity | `6.4.2f1` / `6000.4.2f1` |
 | 发布目标 | Windows 双客户端 demo |
@@ -80,20 +82,17 @@ flowchart LR
 | v0.85 | GitHub README / 发布文档门面 | 完成 |
 | v0.9 | Editor + exe 双端人工验收 | 待做 |
 | v0.95 | 标准路径 release candidate 包 | 待做 |
-| v1.0 | itch.io 提交、`dev -> main` promote、release tag | 待做 |
+| v1.0 | Hackathon Submission Cut：itch.io 提交、`dev -> main` promote、release tag | 待做 |
 
-`v1.0` 之后的计划先只记录方向，不进入 DDL 前执行范围。
+`v1.0` 之后的计划进入 `docs/CONTENT_ROADMAP.md`，不进入 DDL 前执行范围。
 
 ## v1.0 之后再定的方向
 
-| 方向 | 可能内容 | 当前处理 |
-|---|---|---|
-| 关卡扩展 | 更多房间、旧版 Tree/Switch/Box 概念回收 | 记录，不做 |
-| 平台扩展 | WebGL / Mac | 提交后评估 |
-| 美术提升 | 统一风格、角色动画、更多环境音 | 提交后评估 |
-| 联网体验 | 房间名、断线恢复、角色选择 | 提交后评估 |
-| 叙事包装 | 开场/结尾、任务文本、角色身份 | 提交后评估 |
-| 技术整理 | 架构清理、测试补齐、资源目录重排 | 提交后评估 |
+详见 `docs/CONTENT_ROADMAP.md`。这里保留边界结论：
+
+- v1.0 可以作为黑客松完结点。
+- v1.0 不是项目内容完结点。
+- v1.1 / v1.5 / v2.0 / v3.0 的具体范围，提交后再按时间和反馈确定。
 
 ## 当前下一步
 
