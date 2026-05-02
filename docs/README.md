@@ -9,7 +9,8 @@
 | 2 | [`../ONBOARD.md`](../ONBOARD.md) | 10 分钟 | 完整入坑指南（环境配置 + Git 流程 + Unity 设置） |
 | 3 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | 10 分钟 | 技术架构总览 + 代码组织 |
 | 4 | [`PLAN.md`](./PLAN.md) 附录 R | 5 分钟 | 最新关卡设计（v2 三方向） |
-| 5 | [`PLAN.md`](./PLAN.md) 全文 | 30-60 分钟 | 完整设计文档（按需精读） |
+| 5 | [`thread-prompts/README.md`](./thread-prompts/README.md) | 3 分钟 | 多线程任务分工与 handoff prompts |
+| 6 | [`PLAN.md`](./PLAN.md) 全文 | 30-60 分钟 | 完整设计文档（按需精读） |
 
 ---
 
@@ -21,6 +22,7 @@
 | `ONBOARD.md`（仓库根） | 项目主 | 偶尔 | 是（团队入口） |
 | `docs/ARCHITECTURE.md` | 程序 | 架构变化时 | 是（技术权威） |
 | `docs/PLAN.md` | 项目主 + 策划 | 设计调整时 | 是（设计权威） |
+| `docs/thread-prompts/` | 项目主 + AI 主控线程 | 多线程分工变化时 | 是（线程 handoff 权威） |
 | `docs/README.md`（本文件） | 任意人 | 加新文档时 | 是（导航） |
 
 ---
