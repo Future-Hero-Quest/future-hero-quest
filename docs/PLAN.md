@@ -1,41 +1,69 @@
 ---
 name: future-adventure-gamejam
-overview: GameJam 项目《未来人大冒险》：Unity 2.5D（2D 角色 + 3D 物理）联网双人箱庭解谜，过去玩家的事件即时反馈到未来玩家世界。46 小时内交付 2-3 关可发布 Demo。
+overview: GameJam 项目《Future Hero Quest》：Unity 2.5D 联网双人时空解谜 demo，过去/未来玩家通过 Photon PUN2 同步离散语义事件。当前进入发布验收阶段。
 todos:
   - id: skeleton
-    content: Unity 2022.3 LTS 建项，导入 Photon PUN2，跑通双人同步胶囊体移动（T+6h 必须完成）
-    status: pending
+    content: Unity 6.4.2f1 建项，导入 Photon PUN2，跑通双人同步胶囊体移动
+    status: completed
   - id: core-arch
     content: 实现 TimelineEventBus + PastEventSender + FutureWorldReceiver，验证事件驱动架构
-    status: pending
+    status: completed
   - id: art-import
-    content: 导入 Synty Polygon 公模 + Kenney sprite，搭建 2.5D Billboard 角色控制器
-    status: pending
+    content: 整合 Kenney / OpenGameArt CC0 资源与 art-audio prefab
+    status: completed
   - id: level1-tree
-    content: 第一关《种树》完整闭环：过去种树 → 未来出现大树 → 未来玩家爬树过关
-    status: pending
+    content: Level01_Bridge 桥修复反馈闭环
+    status: completed
   - id: level2-switch
-    content: 第二关《开关》：过去拨开关组合 + 未来看电路图传指令
-    status: pending
+    content: Level02_Archive 档案缺失/错误/正确反馈闭环
+    status: completed
   - id: level3-box
-    content: 第三关《搬箱》：5 选 1 压力板谜题（如时间不够可砂掉）
-    status: pending
+    content: Level03_ClubRoom 台球结果与最终门锁反馈闭环
+    status: completed
   - id: dialogue-system
     content: 预设台词系统 + DialogueBubble UI（玩家间交流）
-    status: pending
+    status: completed
   - id: polish
-    content: Cinemachine 镜头切换 + DOTween 过场动画 + Suno BGM
-    status: pending
+    content: 白盒强化材质、art kit prefab、audio cue prefab
+    status: completed
   - id: build-ship
-    content: 打包 WebGL + Mac + Win，itch.io 上传，5/3 19:00 前交付
-    status: pending
+    content: Windows 包构建、Editor + exe 人工验收、itch.io 上传，5/3 19:00 前交付
+    status: in_progress
 isProject: false
 ---
 
 
 # 《未来人大冒险》GameJam 实施方案
 
-DDL：北京时间 2026-05-03 19:00 · 剩余约 46 小时
+DDL：北京时间 2026-05-03 19:00 · 当前阶段：发布验收与提交准备
+
+## 当前执行修订（2026-05-02 11:20）
+
+原计划中的大方向仍成立：双人联网、过去/未来信息差、离散事件同步。但当前项目已经进入发布集成阶段，后续不再重做关卡、不再追 WebGL/Mac 首发。
+
+当前基线：
+
+- `origin/dev = c4d742d merge: integrate art audio rescue pass`
+- `origin/main = 07f2910 docs(workflow): add thread handoff prompts`
+- Unity = `6.4.2f1`
+- 最终 Build Settings = `Launcher` + `Level01_Bridge` + `Level02_Archive` + `Level03_ClubRoom`
+- Windows batchmode 构建已通过；最终仍需在主 Unity 工作区空闲时跑一次标准路径构建
+
+当前计划调整：
+
+| 项 | 原计划 | 当前执行 |
+|---|---|---|
+| 关卡 | 种树 / 信件 / 镜像等完整设计 | 已落地为 L1 Bridge / L2 Archive / L3 ClubRoom 三关 demo |
+| 平台 | WebGL + Mac + Windows | Windows 作为提交主目标；WebGL/Mac 只作为 stretch |
+| 美术音频 | 后续整合 | art-audio rescue pass 已合入 `dev` |
+| 构建 | 多平台打包 | 先确保 Windows 双端可验收 |
+| 发布前重点 | 继续扩功能 | Editor + exe 人工验收、标准路径构建、itch.io 上传、promote `dev -> main` |
+
+当前权威发布文档：
+
+- `docs/RELEASE_ACCEPTANCE.md`
+- `docs/ITCH_PAGE.md`
+- 仓库根 `README.md`
 
 ---
 
@@ -45,9 +73,9 @@ DDL：北京时间 2026-05-03 19:00 · 剩余约 46 小时
 |------|------|
 | 玩法骨架 | 2 人联网合作箱庭解谜，单一时间线，过去影响未来 |
 | 视觉风格 | 2.5D：3D lowpoly 场景 + 2D Billboard/Sprite 角色 |
-| 引擎 | **Unity 2022.3 LTS**（Mac 友好、2D+3D 物理+联网生态最成熟） |
-| 联网 | **Photon PUN2** 或 **Fusion**（GameJam 5 分钟接入，免 relay 配置） |
-| 交付形式 | **WebGL + Mac/Windows 双包**（itch.io 直接玩） |
+| 引擎 | **Unity 6.4.2f1**（当前实际工程版本，不要用 2022.3 降级打开） |
+| 联网 | **Photon PUN2** |
+| 交付形式 | **Windows 双客户端 demo 优先**；WebGL/Mac 作为 stretch |
 | 团队规模 | 1-2 人（按 1 人主程 + AI 辅助估算） |
 
 > 不选 UE5（Mac 编译慢、WebGL 不友好）、不选 Godot（联网生态弱）、不自研引擎（自杀）。
@@ -116,7 +144,7 @@ flowchart LR
 
 ### 3.1 引擎与包
 
-- Unity 2022.3 LTS + URP（无光照烘焙，统一环境光，省时间）
+- Unity 6.4.2f1 + Built-in Render Pipeline（URP 延后，避免打包风险）
 - **Photon PUN2**（首选，免费 20 CCU 够用，文档最全）
 - Cinemachine（镜头）+ DOTween（动画曲线，替代手写贝塞尔）
 - TextMesh Pro（UI 与对话气泡）
@@ -1110,14 +1138,13 @@ add wind sound effects, melancholic, ambient, 2 minutes, looping"
 
 ### P.1 提交清单（5/3 17:00 前必须备齐）
 
-- [ ] WebGL 构建包（zip）
-- [ ] Mac 构建包（zip）
-- [ ] Windows 构建包（zip）
-- [ ] 封面图 630x500（标题 + K/M 双角色）
+- [ ] Windows 构建包（zip，包含完整 `NetworkDemoWin` 文件夹）
+- [ ] Editor + exe 双端人工验收通过
+- [ ] 封面图 630x500（标题 + 过去/未来双角色或双时空画面）
 - [ ] 横幅图 960x540
 - [ ] 3-5 张游戏截图
-- [ ] 30 秒 Gameplay GIF（用 ScreenToGif）
-- [ ] 简介文案（中英双语）
+- [ ] 可选 30 秒 Gameplay GIF / 视频
+- [ ] 简介文案（可直接使用 `docs/ITCH_PAGE.md`）
 - [ ] 操作说明
 - [ ] 致谢与版权声明
 
@@ -1131,52 +1158,47 @@ add wind sound effects, melancholic, ambient, 2 minutes, looping"
 
 **长简介**：
 ```
-1996 年，普通高中生 K 接到一通来自 30 年后的奇怪通讯。
-2026 年，未来人 M 凝视着一片废墟，向过去发送求救信号。
+Future Hero Quest is a 2.5D online co-op puzzle demo.
 
-这是一款双人合作时空解谜游戏。
-你和你的伙伴各自处于过去与未来，
-看不到对方，只能通过有限的对话相互暗示。
-你在过去做的每一件事，
-都会即时改变 ta 在未来看到的世界。
+One player is in 1996. The other is in 2026.
+Each player sees a different side of the same timeline.
+Talk to each other, trigger timeline events, and solve three compact puzzle rooms together.
 
-致敬《泰坦陨落 2》"Effect and Cause" 关卡 ——
-但这一次，你不是一个人。
+This hackathon build focuses on semantic event synchronization:
+important actions in one timeline immediately change the other player's world.
 
-[需要 2 名玩家联机游玩 · 约 15 分钟流程]
+[Requires 2 online players · Windows build · Internet required for Photon]
 ```
 
 **操作说明**：
 ```
-WASD - 移动
-鼠标右键 - 视角
-E - 互动
-1-8 数字键 - 发送预设台词
-Tab - 显示提示
-R - 重置当前关
-ESC - 菜单
+WASD / Arrow Keys - Move
+E - Interact
+R - Reset current level
+Number Keys - Send dialogue shortcuts when available
 ```
 
 **致谢**：
 ```
 - Unity Technologies
 - Photon Engine
-- Synty Studios (POLYGON Starter Pack)
-- Kenney.nl (CC0 Audio & Sprites)
-- Suno AI (BGM)
-- 灵感致敬：谷川流《凉宫春日》系列、Respawn《泰坦陨落 2》
+- Kenney assets and audio, CC0
+- OpenGameArt audio assets, CC0
+- OpenFracture
+- TemporalPhysicsToolkit
+- 灵感致敬：Respawn《泰坦陨落 2》、谷川流《凉宫春日》系列
 ```
 
 ### P.3 GameJam 标签建议
 
-- `puzzle`, `co-op`, `multiplayer`, `2.5d`, `time-travel`, `narrative`, `unity`, `webgl`, `chinese`
+- `puzzle`, `co-op`, `multiplayer`, `2.5d`, `time-travel`, `unity`, `windows`, `chinese`
 
 ### P.4 提交门检（5/3 18:00 必做）
 
-- [ ] WebGL 在 Chrome / Edge 都能跑
-- [ ] 两台真机测试通关全部关卡
+- [ ] Windows 包能启动，且 zip 包包含完整 `NetworkDemoWin` 文件夹
+- [ ] Editor + Windows exe 双端测试通关全部关卡
 - [ ] 没有 Console error
-- [ ] 主菜单 → 创建房间 → 加入房间 → 通关 → 回主菜单 全流程顺畅
+- [ ] Launcher → Create Room → Join Room → L1 → L2 → L3 全流程顺畅
 - [ ] 退出游戏不会崩溃
 
 ---
