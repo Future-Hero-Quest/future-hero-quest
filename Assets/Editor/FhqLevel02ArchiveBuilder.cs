@@ -236,6 +236,14 @@ namespace FutureHeroQuest.EditorTools
             GameObject lockedDoor = CreateCube(root, "Future_LockedCabinetDoor_Blocker", new Vector3(7.6f, 1.05f, 4.05f), new Vector3(1.35f, 2.1f, 0.36f), locked);
             GameObject openDoor = CreateCube(root, "Future_UnlockedDoorMarker", new Vector3(7.6f, 1.05f, 4.08f), new Vector3(1.35f, 0.16f, 0.36f), unlocked);
             openDoor.SetActive(false);
+            GameObject exitPlatform = CreateCube(root, "Future_ExitPlatform_AfterUnlock", new Vector3(7.6f, -0.1f, 4.9f), new Vector3(2.25f, 0.2f, 2.15f), unlocked);
+            exitPlatform.SetActive(false);
+            GameObject exitBackRail = CreateCube(root, "Future_ExitBackRail_AfterUnlock", new Vector3(7.6f, 0.65f, 5.9f), new Vector3(2.25f, 1.3f, 0.22f), unlocked);
+            exitBackRail.SetActive(false);
+            GameObject exitLeftRail = CreateCube(root, "Future_ExitLeftRail_AfterUnlock", new Vector3(6.42f, 0.65f, 4.9f), new Vector3(0.22f, 1.3f, 2.15f), unlocked);
+            exitLeftRail.SetActive(false);
+            GameObject exitRightRail = CreateCube(root, "Future_ExitRightRail_AfterUnlock", new Vector3(8.78f, 0.65f, 4.9f), new Vector3(0.22f, 1.3f, 2.15f), unlocked);
+            exitRightRail.SetActive(false);
 
             GameObject unlockConsole = new GameObject("Future_UnlockConsole_AfterPlaced");
             unlockConsole.transform.SetParent(root, false);
@@ -248,11 +256,11 @@ namespace FutureHeroQuest.EditorTools
             ConfigureSender(unlockSender, EventKind.SetKeyState, EventDirection.Bidirectional, "KeyState", "Unlocked", "L2_Key", GameRole.Future, unlockPrompt, new[] { unlockConsole });
             unlockConsole.SetActive(false);
 
-            GameObject exitBeacon = CreateCube(root, "Future_ExitBeacon_AfterUnlock", new Vector3(7.6f, 0.15f, 5.45f), new Vector3(1.5f, 0.3f, 1.1f), unlocked);
+            GameObject exitBeacon = CreateCube(root, "Future_ExitBeacon_AfterUnlock", new Vector3(7.6f, 0.15f, 4.85f), new Vector3(1.5f, 0.3f, 1.1f), unlocked);
             exitBeacon.SetActive(false);
-            CreateWorldLabel(root, "ExitLabel", "EXIT", new Vector3(7.6f, 0.08f, 5.95f), Color.green, 0.16f);
+            CreateWorldLabel(root, "ExitLabel", "EXIT", new Vector3(7.6f, 0.08f, 5.35f), Color.green, 0.16f);
 
-            GameObject exitZone = CreateCube(root, "Future_ExitReachZone", new Vector3(7.6f, 0.5f, 5.45f), new Vector3(1.6f, 1f, 1.2f), unlocked);
+            GameObject exitZone = CreateCube(root, "Future_ExitReachZone", new Vector3(7.6f, 0.5f, 4.85f), new Vector3(1.6f, 1f, 1.2f), unlocked);
             var exitCollider = exitZone.GetComponent<BoxCollider>();
             if (exitCollider != null) exitCollider.isTrigger = true;
             var reachZone = exitZone.AddComponent<SemanticReachZone>();
@@ -272,7 +280,13 @@ namespace FutureHeroQuest.EditorTools
             GameObject unlockApplier = new GameObject("Future_Door_KeyApplier");
             unlockApplier.transform.SetParent(root, false);
             var applier = unlockApplier.AddComponent<SemanticStateApplier>();
-            ConfigureApplier(applier, "KeyState", "Unlocked", "L2_Key", new[] { openDoor, exitBeacon, exitZone }, new[] { lockedDoor, missingFeedback, wrongFeedback, placedFeedback, unlockConsole });
+            ConfigureApplier(
+                applier,
+                "KeyState",
+                "Unlocked",
+                "L2_Key",
+                new[] { openDoor, exitPlatform, exitBackRail, exitLeftRail, exitRightRail, exitBeacon, exitZone },
+                new[] { lockedDoor, missingFeedback, wrongFeedback, placedFeedback, unlockConsole });
         }
 
         private static void CreateSemanticLoop(Transform parent, Material clue, Material key, Material locked, Material unlocked, Material wrong, Material missing)

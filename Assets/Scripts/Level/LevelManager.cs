@@ -197,27 +197,30 @@ namespace FutureHeroQuest.Level
         {
             if (_resetRequested) return;
             _resetRequested = true;
+            string activeScene = SceneManager.GetActiveScene().name;
 
             if (!PhotonNetwork.InRoom)
             {
-                PrepareResetLevelLocal();
-                LoadCurrentScene();
+                StartCoroutine(ResetCurrentSceneLocally(activeScene));
                 return;
             }
 
-            PrepareResetLevelLocal();
-            photonView.RPC(nameof(RPC_PrepareResetLevel), RpcTarget.Others);
-
-            if (PhotonNetwork.IsMasterClient)
-            {
-                StartCoroutine(LoadCurrentSceneAfterResetCleanup());
-            }
+            photonView.RPC(nameof(RPC_ResetCurrentLevel), RpcTarget.AllViaServer, activeScene);
         }
 
         [PunRPC]
-        private void RPC_PrepareResetLevel()
+        private void RPC_ResetCurrentLevel(string sceneName, PhotonMessageInfo info)
         {
-            PrepareResetLevelLocal();
+            int masterActor = PhotonNetwork.MasterClient != null ? PhotonNetwork.MasterClient.ActorNumber : -1;
+            int senderActor = info.Sender != null ? info.Sender.ActorNumber : -1;
+            if (PhotonNetwork.InRoom && senderActor != masterActor)
+            {
+                Debug.LogWarning($"[LevelManager] Ignored reset broadcast from non-master actor #{senderActor}.");
+                return;
+            }
+
+            _resetRequested = true;
+            StartCoroutine(ResetCurrentSceneLocally(sceneName));
         }
 
         private void PrepareResetLevelLocal()
@@ -230,19 +233,11 @@ namespace FutureHeroQuest.Level
             CancelInvoke(nameof(LoadNext));
         }
 
-        private IEnumerator LoadCurrentSceneAfterResetCleanup()
+        private IEnumerator ResetCurrentSceneLocally(string sceneName)
         {
+            PrepareResetLevelLocal();
             yield return new WaitForSeconds(0.25f);
-            LoadCurrentScene();
-        }
-
-        private void LoadCurrentScene()
-        {
-            string activeScene = SceneManager.GetActiveScene().name;
-            if (PhotonNetwork.InRoom)
-                PhotonNetwork.LoadLevel(activeScene);
-            else
-                SceneManager.LoadScene(activeScene);
+            SceneManager.LoadScene(string.IsNullOrEmpty(sceneName) ? SceneManager.GetActiveScene().name : sceneName);
         }
 
         private bool AreRequiredPuzzleTargetsChanged()
