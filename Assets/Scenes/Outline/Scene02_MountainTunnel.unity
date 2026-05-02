@@ -1469,8 +1469,8 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
-  orthographic: 1
+  field of view: 72
+  orthographic: 0
   orthographic size: 4.15
   m_Depth: 0
   m_CullingMask:
@@ -1495,8 +1495,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519467964}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.4461978, y: 0, z: 0, w: 0.89493436}
-  m_LocalPosition: {x: -1.15, y: 5.35, z: -4}
+  m_LocalRotation: {x: 0.06975647, y: 0, z: 0, w: 0.9975641}
+  m_LocalPosition: {x: 0, y: 2.4, z: -7.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3498,9 +3498,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FutureHeroQuest.SceneFlow.OutlineLocalPlayerController
   moveSpeed: 4
   rotateSpeed: 720
+  jumpHeight: 1.35
   gravity: -9.81
   fallRespawnY: -8
   respawnPoint: {fileID: 758776667}
+  sprintKey: 304
+  sprintMultiplier: 1.55
+  defaultFirstPerson: 1
+  toggleViewKey: 118
+  lockCursorInFirstPerson: 1
+  mouseSensitivity: 2.2
+  minPitch: -55
+  maxPitch: 68
+  eyeHeight: 1.52
+  firstPersonFov: 72
+  thirdPersonFov: 64
+  thirdPersonOffset: {x: 0, y: 2.25, z: -4.15}
+  thirdPersonFocusOffset: {x: 0, y: 1.15, z: 0}
+  cameraFollowSharpness: 14
+  showControlHints: 1
+  showCrosshair: 1
+  interactProbeDistance: 2.6
+  interactProbeRadius: 2
+  interactLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!143 &1379090738
 CharacterController:
   m_ObjectHideFlags: 0

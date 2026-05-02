@@ -428,12 +428,12 @@ namespace FutureHeroQuest.EditorTools
             var go = new GameObject("Main Camera");
             go.tag = "MainCamera";
             var cam = go.AddComponent<Camera>();
-            cam.orthographic = true;
-            cam.orthographicSize = 7.4f;
+            cam.orthographic = false;
+            cam.fieldOfView = 72f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = background;
-            go.transform.position = new Vector3(0f, 15.5f, -11.5f);
-            go.transform.rotation = Quaternion.Euler(56f, 0f, 0f);
+            go.transform.position = new Vector3(0f, 2.4f, -7.2f);
+            go.transform.rotation = Quaternion.Euler(8f, 0f, 0f);
         }
 
         private static void CreateLights()

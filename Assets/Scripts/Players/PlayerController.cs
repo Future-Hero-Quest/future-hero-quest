@@ -13,6 +13,19 @@ namespace FutureHeroQuest.Players
         public static bool LocalViewOwnsCamera => LocalCameraOwner != null;
 
         private static PlayerController LocalCameraOwner;
+        private static readonly string[] InteractableTypeNames =
+        {
+            "OutlineInteractable",
+            "TemporalOutlineInteractable",
+            "SemanticStateSender",
+            "SemanticReachZone",
+            "LetterSender",
+            "LetterReceiver",
+            "MirrorSwitch",
+            "SafeBox",
+            "TreeSeedling",
+            "LevelBoundaryTransition"
+        };
 
         [SerializeField] private float moveSpeed = 4.0f;
         [SerializeField] private float rotateSpeed = 720.0f;
@@ -47,6 +60,13 @@ namespace FutureHeroQuest.Players
         [SerializeField] private float interactReachDistance = 0.16f;
         [SerializeField] private float interactReachDuration = 0.18f;
 
+        [Header("HUD")]
+        [SerializeField] private bool showControlHints = true;
+        [SerializeField] private bool showCrosshair = true;
+        [SerializeField] private float interactProbeDistance = 2.6f;
+        [SerializeField] private float interactProbeRadius = 2.0f;
+        [SerializeField] private LayerMask interactLayerMask = ~0;
+
         private CharacterController _cc;
         private Vector3 _velocity;
         private Camera _camera;
@@ -67,6 +87,10 @@ namespace FutureHeroQuest.Players
         private float _interactReachTime;
         private bool _isSprinting;
         private bool _isCrouching;
+        private bool _nearInteractable;
+        private GUIStyle _hintStyle;
+        private GUIStyle _promptStyle;
+        private GUIStyle _crosshairStyle;
 
         private bool IsLocallyControlled => photonView == null || photonView.IsMine || !PhotonNetwork.InRoom;
 
@@ -127,6 +151,7 @@ namespace FutureHeroQuest.Players
             HandleViewToggle();
             HandleLookInput();
             HandleInteractAnimationInput();
+            UpdateInteractPromptState();
 
             if (transform.position.y < fallRespawnY && PlayerSpawner.TryGetSpawnPoseForLocalRole(out Vector3 spawnPos, out Quaternion spawnRot))
             {
@@ -196,6 +221,31 @@ namespace FutureHeroQuest.Players
             if (!IsLocallyControlled)
             {
                 return;
+            }
+
+            BuildGuiStyles();
+
+            if (showCrosshair && _firstPersonView)
+            {
+                Rect crosshairRect = new Rect(Screen.width * 0.5f - 10f, Screen.height * 0.5f - 12f, 20f, 24f);
+                GUI.Label(crosshairRect, "+", _crosshairStyle);
+            }
+
+            if (showControlHints)
+            {
+                Rect hintRect = new Rect(12f, Screen.height - 154f, 270f, 86f);
+                GUI.Box(hintRect, GUIContent.none);
+                GUI.Label(new Rect(hintRect.x + 12f, hintRect.y + 8f, 246f, 20f), "WASD / Arrows  Move", _hintStyle);
+                GUI.Label(new Rect(hintRect.x + 12f, hintRect.y + 28f, 246f, 20f), "Mouse  Look", _hintStyle);
+                GUI.Label(new Rect(hintRect.x + 12f, hintRect.y + 48f, 246f, 20f), "Space  Jump    Shift  Sprint", _hintStyle);
+                GUI.Label(new Rect(hintRect.x + 12f, hintRect.y + 68f, 246f, 20f), "V  View    Esc  Cursor", _hintStyle);
+            }
+
+            if (_nearInteractable)
+            {
+                Rect promptRect = new Rect(Screen.width * 0.5f - 92f, Screen.height * 0.62f, 184f, 34f);
+                GUI.Box(promptRect, GUIContent.none);
+                GUI.Label(promptRect, "E  Interact", _promptStyle);
             }
 
             Rect buttonRect = new Rect(12f, Screen.height - 62f, 112f, 30f);
@@ -277,14 +327,26 @@ namespace FutureHeroQuest.Players
 
         private void HandleLookInput()
         {
+            if (!ShouldUseMouseLook())
+            {
+                return;
+            }
+
             float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
             float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-            if (Cursor.lockState == CursorLockMode.Locked || _firstPersonView)
+            _yaw += mouseX;
+            _pitch = Mathf.Clamp(_pitch - mouseY, minPitch, maxPitch);
+        }
+
+        private bool ShouldUseMouseLook()
+        {
+            if (_firstPersonView)
             {
-                _yaw += mouseX;
-                _pitch = Mathf.Clamp(_pitch - mouseY, minPitch, maxPitch);
+                return Cursor.lockState == CursorLockMode.Locked || !lockCursorInFirstPerson;
             }
+
+            return Cursor.lockState == CursorLockMode.Locked || Input.GetMouseButton(1);
         }
 
         private Vector3 ResolveMoveDirection(float horizontalInput, float verticalInput)
@@ -318,6 +380,137 @@ namespace FutureHeroQuest.Players
             _cc.height = targetHeight;
             _cc.center = _standingCenter + Vector3.down * ((_standingHeight - targetHeight) * 0.5f);
             _currentEyeHeight = Mathf.Lerp(eyeHeight, crouchEyeHeight, _crouchBlend);
+        }
+
+        private void UpdateInteractPromptState()
+        {
+            _nearInteractable = false;
+
+            if (_camera != null && Physics.Raycast(_camera.transform.position, _camera.transform.forward, out RaycastHit hit,
+                    interactProbeDistance, interactLayerMask, QueryTriggerInteraction.Collide))
+            {
+                if (IsInteractableCandidate(hit.transform))
+                {
+                    _nearInteractable = true;
+                    return;
+                }
+            }
+
+            Collider[] nearby = Physics.OverlapSphere(transform.position, interactProbeRadius, interactLayerMask, QueryTriggerInteraction.Collide);
+            foreach (Collider candidate in nearby)
+            {
+                if (candidate != null && IsInteractableCandidate(candidate.transform))
+                {
+                    _nearInteractable = true;
+                    return;
+                }
+            }
+        }
+
+        private bool IsInteractableCandidate(Transform candidate)
+        {
+            if (candidate == null || candidate.root == transform.root)
+            {
+                return false;
+            }
+
+            if (HasInteractableMarker(candidate.gameObject))
+            {
+                return true;
+            }
+
+            Transform parent = candidate.parent;
+            while (parent != null)
+            {
+                if (parent.root == transform.root)
+                {
+                    return false;
+                }
+
+                if (HasInteractableMarker(parent.gameObject))
+                {
+                    return true;
+                }
+
+                parent = parent.parent;
+            }
+
+            return false;
+        }
+
+        private static bool HasInteractableMarker(GameObject candidate)
+        {
+            if (candidate == null)
+            {
+                return false;
+            }
+
+            MonoBehaviour[] behaviours = candidate.GetComponents<MonoBehaviour>();
+            foreach (MonoBehaviour behaviour in behaviours)
+            {
+                if (IsRecognizedInteractable(behaviour))
+                {
+                    return true;
+                }
+            }
+
+            behaviours = candidate.GetComponentsInChildren<MonoBehaviour>(true);
+            foreach (MonoBehaviour behaviour in behaviours)
+            {
+                if (IsRecognizedInteractable(behaviour))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsRecognizedInteractable(MonoBehaviour behaviour)
+        {
+            if (behaviour == null)
+            {
+                return false;
+            }
+
+            string typeName = behaviour.GetType().Name;
+            foreach (string interactableTypeName in InteractableTypeNames)
+            {
+                if (typeName == interactableTypeName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void BuildGuiStyles()
+        {
+            if (_hintStyle != null)
+            {
+                return;
+            }
+
+            _hintStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 13,
+                normal = { textColor = Color.white }
+            };
+            _promptStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 18,
+                fontStyle = FontStyle.Bold,
+                normal = { textColor = Color.white }
+            };
+            _crosshairStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 20,
+                fontStyle = FontStyle.Bold,
+                normal = { textColor = Color.white }
+            };
         }
 
         private void EnsureLocalCamera()
