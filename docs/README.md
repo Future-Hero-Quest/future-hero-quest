@@ -7,14 +7,15 @@
 |------|------|------|------|
 | 1 | [`../README.md`](../README.md) | 3 分钟 | 项目简介 + 快速开始 |
 | 2 | [`../ONBOARD.md`](../ONBOARD.md) | 10 分钟 | 完整入坑指南（环境配置 + Git 流程 + Unity 设置） |
-| 3 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | 10 分钟 | 技术架构总览 + 代码组织 |
-| 4 | [`THREAD_PLAN.md`](./THREAD_PLAN.md) | 5 分钟 | 当前发布阶段线程 Plan 与里程碑定义 |
-| 5 | [`CONTENT_ROADMAP.md`](./CONTENT_ROADMAP.md) | 5 分钟 | v1.0 之后的大内容方向与版本路线 |
-| 6 | [`RELEASE_ACCEPTANCE.md`](./RELEASE_ACCEPTANCE.md) | 5 分钟 | 当前发布验收与最终构建门禁 |
-| 7 | [`ITCH_PAGE.md`](./ITCH_PAGE.md) | 5 分钟 | itch.io 项目页草稿 |
-| 8 | [`PLAN.md`](./PLAN.md) 附录 R | 5 分钟 | 历史关卡设计与当前执行修订 |
-| 9 | [`thread-prompts/README.md`](./thread-prompts/README.md) | 3 分钟 | 多线程任务分工与 handoff prompts |
-| 10 | [`PLAN.md`](./PLAN.md) 全文 | 30-60 分钟 | 完整设计文档（按需精读） |
+| 3 | [`PHOTON_SETUP.md`](./PHOTON_SETUP.md) | 3 分钟 | 本地 Photon AppID 配置，不提交真实 AppID |
+| 4 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | 10 分钟 | 技术架构总览 + 代码组织 |
+| 5 | [`THREAD_PLAN.md`](./THREAD_PLAN.md) | 5 分钟 | 当前发布阶段线程 Plan 与里程碑定义 |
+| 6 | [`CONTENT_ROADMAP.md`](./CONTENT_ROADMAP.md) | 5 分钟 | v1.0 之后的大内容方向与版本路线 |
+| 7 | [`RELEASE_ACCEPTANCE.md`](./RELEASE_ACCEPTANCE.md) | 5 分钟 | 当前发布验收与最终构建门禁 |
+| 8 | [`ITCH_PAGE.md`](./ITCH_PAGE.md) | 5 分钟 | itch.io 项目页草稿 |
+| 9 | [`PLAN.md`](./PLAN.md) 附录 R | 5 分钟 | 历史关卡设计与当前执行修订 |
+| 10 | [`thread-prompts/README.md`](./thread-prompts/README.md) | 3 分钟 | 多线程任务分工与 handoff prompts |
+| 11 | [`PLAN.md`](./PLAN.md) 全文 | 30-60 分钟 | 完整设计文档（按需精读） |
 
 ---
 
@@ -24,6 +25,7 @@
 |------|--------|---------|---------|
 | `README.md`（仓库根） | 项目主 | 偶尔 | 是（项目门面） |
 | `ONBOARD.md`（仓库根） | 项目主 | 偶尔 | 是（团队入口） |
+| `docs/PHOTON_SETUP.md` | 程序 | Photon 配置变化时 | 是（本地 AppID 配置权威） |
 | `docs/ARCHITECTURE.md` | 程序 | 架构变化时 | 是（技术权威） |
 | `docs/PLAN.md` | 项目主 + 策划 | 设计调整时 | 是（设计权威） |
 | `docs/THREAD_PLAN.md` | 项目主 + 主控线程 | 发布阶段变化时 | 是（当前线程调度权威） |
