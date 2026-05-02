@@ -235,14 +235,18 @@ namespace FutureHeroQuest.EditorTools
             Object.DestroyImmediate(doorFrame.GetComponent<BoxCollider>());
             GameObject lockedDoor = CreateCube(root, "Future_LockedCabinetDoor_Blocker", new Vector3(7.6f, 1.05f, 4.05f), new Vector3(1.35f, 2.1f, 0.36f), locked);
             GameObject openDoor = CreateCube(root, "Future_UnlockedDoorMarker", new Vector3(7.6f, 1.05f, 4.08f), new Vector3(1.35f, 0.16f, 0.36f), unlocked);
+            RemoveCollider(openDoor);
             openDoor.SetActive(false);
             GameObject exitPlatform = CreateCube(root, "Future_ExitPlatform_AfterUnlock", new Vector3(7.6f, -0.1f, 4.9f), new Vector3(2.25f, 0.2f, 2.15f), unlocked);
             exitPlatform.SetActive(false);
             GameObject exitBackRail = CreateCube(root, "Future_ExitBackRail_AfterUnlock", new Vector3(7.6f, 0.65f, 5.9f), new Vector3(2.25f, 1.3f, 0.22f), unlocked);
+            RemoveCollider(exitBackRail);
             exitBackRail.SetActive(false);
             GameObject exitLeftRail = CreateCube(root, "Future_ExitLeftRail_AfterUnlock", new Vector3(6.42f, 0.65f, 4.9f), new Vector3(0.22f, 1.3f, 2.15f), unlocked);
+            RemoveCollider(exitLeftRail);
             exitLeftRail.SetActive(false);
             GameObject exitRightRail = CreateCube(root, "Future_ExitRightRail_AfterUnlock", new Vector3(8.78f, 0.65f, 4.9f), new Vector3(0.22f, 1.3f, 2.15f), unlocked);
+            RemoveCollider(exitRightRail);
             exitRightRail.SetActive(false);
 
             GameObject unlockConsole = new GameObject("Future_UnlockConsole_AfterPlaced");
@@ -257,12 +261,15 @@ namespace FutureHeroQuest.EditorTools
             unlockConsole.SetActive(false);
 
             GameObject exitBeacon = CreateCube(root, "Future_ExitBeacon_AfterUnlock", new Vector3(7.6f, 0.15f, 4.85f), new Vector3(1.5f, 0.3f, 1.1f), unlocked);
+            RemoveCollider(exitBeacon);
             exitBeacon.SetActive(false);
             CreateWorldLabel(root, "ExitLabel", "EXIT", new Vector3(7.6f, 0.08f, 5.35f), Color.green, 0.16f);
 
-            GameObject exitZone = CreateCube(root, "Future_ExitReachZone", new Vector3(7.6f, 0.5f, 4.85f), new Vector3(1.6f, 1f, 1.2f), unlocked);
+            GameObject exitZone = CreateCube(root, "Future_ExitReachZone", new Vector3(7.6f, 0.65f, 3.55f), new Vector3(2.05f, 1.3f, 1.05f), unlocked);
             var exitCollider = exitZone.GetComponent<BoxCollider>();
             if (exitCollider != null) exitCollider.isTrigger = true;
+            var exitRenderer = exitZone.GetComponent<MeshRenderer>();
+            if (exitRenderer != null) exitRenderer.enabled = false;
             var reachZone = exitZone.AddComponent<SemanticReachZone>();
             ConfigureReachZone(reachZone, "L2_Exit", GameRole.Future);
             exitZone.SetActive(false);
@@ -430,6 +437,12 @@ namespace FutureHeroQuest.EditorTools
             var renderer = go.GetComponent<MeshRenderer>();
             if (renderer != null) renderer.sharedMaterial = material;
             return go;
+        }
+
+        private static void RemoveCollider(GameObject go)
+        {
+            var collider = go.GetComponent<Collider>();
+            if (collider != null) Object.DestroyImmediate(collider);
         }
 
         private static GameObject CreateWorldLabel(Transform parent, string name, string text, Vector3 position, Color color, float size)
