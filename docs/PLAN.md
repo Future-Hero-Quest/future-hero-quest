@@ -11,14 +11,14 @@ todos:
   - id: art-import
     content: 整合 Kenney / OpenGameArt CC0 资源与 art-audio prefab
     status: completed
-  - id: level1-tree
-    content: Level01_Bridge 桥修复反馈闭环
+  - id: level1-bridge
+    content: L1《断桥回声》桥修复反馈闭环
     status: completed
-  - id: level2-switch
-    content: Level02_Archive 档案缺失/错误/正确反馈闭环
+  - id: level2-archive
+    content: L2《314号档案》档案缺失/错误/正确反馈闭环
     status: completed
-  - id: level3-box
-    content: Level03_ClubRoom 台球结果与最终门锁反馈闭环
+  - id: level3-clubroom
+    content: L3《最后的社团室》台球结果与最终门锁反馈闭环
     status: completed
   - id: dialogue-system
     content: 预设台词系统 + DialogueBubble UI（玩家间交流）
@@ -43,7 +43,7 @@ DDL：北京时间 2026-05-03 19:00 · 当前阶段：发布验收与提交准�
 
 当前发布阶段线程调度、v1.0 定义、v1.0 后续方向与里程碑映射，以 `docs/THREAD_PLAN.md` 为准。本文档保留完整历史设计和最初执行方案。
 
-大的内容方向和 v1.0 后路线，以 `docs/CONTENT_ROADMAP.md` 为准。`v1.0` 是黑客松提交版，不是项目内容终点。
+大的内容方向和 v1.0 后路线，以 `docs/CONTENT_ROADMAP.md` 为准。`v1.0《都市怪谈篇》` 是黑客松提交版，不是项目内容终点。
 
 当前基线：
 
@@ -58,7 +58,7 @@ DDL：北京时间 2026-05-03 19:00 · 当前阶段：发布验收与提交准�
 
 | 项 | 原计划 | 当前执行 |
 |---|---|---|
-| 关卡 | 种树 / 信件 / 镜像等完整设计 | 已落地为 L1 Bridge / L2 Archive / L3 ClubRoom 三关 demo |
+| 关卡 | 早期概念关卡完整设计 | 已落地为 L1《断桥回声》/ L2《314号档案》/ L3《最后的社团室》三关 demo |
 | 平台 | WebGL + Mac + Windows | Windows 作为提交主目标；WebGL/Mac 只作为 stretch |
 | 美术音频 | 后续整合 | art-audio rescue pass 已合入 `dev` |
 | 构建 | 多平台打包 | 先确保 Windows 双端可验收 |
@@ -71,6 +71,8 @@ DDL：北京时间 2026-05-03 19:00 · 当前阶段：发布验收与提交准�
 - `docs/RELEASE_ACCEPTANCE.md`
 - `docs/ITCH_PAGE.md`
 - 仓库根 `README.md`
+
+> 注意：从下方第 1 章开始，大量内容是早期 46 小时方案和历史设计留档。旧关卡名只代表历史方案，不代表当前提交版。当前提交版是 v1.0《都市怪谈篇》，关卡展示名是 L1《断桥回声》、L2《314号档案》、L3《最后的社团室》。
 
 ---
 

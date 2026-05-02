@@ -5,7 +5,8 @@
 > 配套文档：
 > - 完整设计：[`PLAN.md`](./PLAN.md)
 > - 入坑指南：[`../ONBOARD.md`](../ONBOARD.md)
-> - 关卡设计：[`PLAN.md` 附录 R](./PLAN.md)（搜 "附录 R"）
+> - 当前发布执行：[`THREAD_PLAN.md`](./THREAD_PLAN.md)
+> - 内容方向：[`CONTENT_ROADMAP.md`](./CONTENT_ROADMAP.md)
 
 ---
 
@@ -64,12 +65,12 @@ Assets/Scripts/
 │
 ├── Puzzle/                  ← 谜题元素 (按关卡组织)
 │   ├── PuzzleObject.cs          (基类: 监听事件 + 视觉切换)
-│   ├── TreeSeedling.cs          (第 1 关: 树苗触发)
-│   ├── LetterSender.cs          (第 2 关: M 发信)
-│   ├── LetterReceiver.cs        (第 2 关: K 收信光柱)
-│   ├── SafeBox.cs               (第 2 关: 保险柜)
-│   ├── MirrorSwitch.cs          (第 3 关: 镜像开关)
-│   └── MirrorRoomController.cs  (第 3 关: pattern 仲裁)
+│   ├── TreeSeedling.cs          (早期概念原型: 树苗触发)
+│   ├── LetterSender.cs          (早期概念原型: M 发信)
+│   ├── LetterReceiver.cs        (早期概念原型: K 收信光柱)
+│   ├── SafeBox.cs               (早期概念原型: 保险柜)
+│   ├── MirrorSwitch.cs          (早期概念原型: 双向开关)
+│   └── MirrorRoomController.cs  (早期概念原型: pattern 仲裁)
 │
 ├── Level/                   ← 关卡数据 + 流程控制
 │   ├── LevelData.cs             (ScriptableObject, 关卡配置)
@@ -84,7 +85,7 @@ Assets/Scripts/
     └── FootprintSpawner.cs      (蓝色脚印 decal)
 ```
 
-> **当前状态**：以上脚本已从 `_drafts/Scripts/` 迁入 `Assets/Scripts/`。Unity 工程版本为 6.4.2f1 / 6000.4.2f1，PUN2 已导入，`Launcher` 和 `Level01_Tree` 双胶囊体联网验证场景已生成。
+> **当前状态**：Unity 工程版本为 6.4.2f1 / 6000.4.2f1，PUN2 已导入。提交版场景为 `Launcher`、L1《断桥回声》`Level01_Bridge`、L2《314号档案》`Level02_Archive`、L3《最后的社团室》`Level03_ClubRoom`。
 
 ---
 
@@ -335,19 +336,20 @@ flowchart LR
 
 ---
 
-## 9. 当前未实现的部分（明确告知队友）
+## 9. 当前发布状态（明确告知队友）
 
 - ✅ Unity 项目本体已建在仓库根目录（Unity 6.4.2f1 / 6000.4.2f1）
 - ✅ Photon PUN2 已导入
 - ✅ 22 个脚本草稿已迁入 `Assets/Scripts/`，当前无 C# 红错
-- ✅ 已生成 `Assets/Scenes/Launcher.unity`、`Assets/Scenes/Level01_Tree.unity`
+- ✅ 当前提交版使用 `Assets/Scenes/Launcher.unity`、`Assets/Scenes/Level01_Bridge.unity`、`Assets/Scenes/Level02_Archive.unity`、`Assets/Scenes/Level03_ClubRoom.unity`
 - ✅ 已生成 `PastPlayer` / `FuturePlayer` 胶囊体联网验证 Prefab
+- ✅ 三关《断桥回声》《314号档案》《最后的社团室》已集成到 `origin/dev`
+- ✅ 美术/音频救援整合已进入提交基线
 - ⚠️ Photon AppID 只存在本地 `PhotonServerSettings.asset`，不要提交
-- ❌ 三关正式箱庭场景未建
-- ❌ 美术资源未导入
-- ❌ 音频资源未导入
+- ⚠️ 当前仍需 Editor + exe 双端人工验收
+- ⚠️ 最终 Windows 包需要从主 Unity 工作区跑一次标准路径构建
 
-预计 5/2 上午搞定 1-4，下午 + 晚上做关卡 + 美术，5/3 上午音频 + 整合，下午打包提交。
+DDL 前不再扩展新关卡；发布执行以 `docs/THREAD_PLAN.md` 为准。
 
 ---
 
