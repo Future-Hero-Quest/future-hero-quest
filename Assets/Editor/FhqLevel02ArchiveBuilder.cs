@@ -40,6 +40,8 @@ namespace FutureHeroQuest.EditorTools
             Material key = CreateMaterial("Level02_KeyGold_Mat", new Color(1.0f, 0.76f, 0.16f));
             Material locked = CreateMaterial("Level02_LockedRed_Mat", new Color(0.75f, 0.18f, 0.16f));
             Material unlocked = CreateMaterial("Level02_UnlockedGreen_Mat", new Color(0.18f, 0.75f, 0.36f));
+            Material wrong = CreateMaterial("Level02_WrongFile_Mat", new Color(1.0f, 0.36f, 0.12f));
+            Material missing = CreateMaterial("Level02_MissingBlue_Mat", new Color(0.18f, 0.35f, 0.95f));
             Material dark = CreateMaterial("Level02_DarkShelf_Mat", new Color(0.11f, 0.12f, 0.13f));
 
             CreateCameraAndLight();
@@ -49,9 +51,10 @@ namespace FutureHeroQuest.EditorTools
             CreateZone(root.transform, "Future_2026_ColdArchive", new Vector3(5f, 0f, 0f), floorFuture, wallFuture);
             CreateTimelineDivider(root.transform);
 
-            CreatePastArchiveProps(root.transform, wood, cabinet, key, clue);
-            CreateFutureArchiveProps(root.transform, wood, cabinet, dark, clue, locked, unlocked);
-            CreateSemanticLoop(root.transform, clue, key, locked, unlocked);
+            CreatePastArchiveProps(root.transform, wood, cabinet, key, clue, wrong);
+            CreateFutureArchiveProps(root.transform, wood, cabinet, dark, clue, locked, unlocked, wrong, missing);
+            CreateSemanticLoop(root.transform, clue, key, locked, unlocked, wrong, missing);
+            CreateInitialKeyState(root.transform);
 
             CreateLevelManager(levelData);
             CreatePlayerSpawner();
@@ -89,10 +92,10 @@ namespace FutureHeroQuest.EditorTools
             data.futureDateLabel = "2026";
             data.randomSeed = 314;
             data.passiveHintAfterSeconds = 120f;
-            data.passiveHintForFuture = "Read the archive clue, then wait for the key.";
-            data.passiveHintForPast = "Use the highlighted cabinet to place the key.";
-            data.pastDialogue = new[] { "Cabinet 2 is reacting.", "The spare key is in place." };
-            data.futureDialogue = new[] { "Archive 314 points to cabinet 2.", "The cabinet door is unlocked." };
+            data.passiveHintForFuture = "Check the locked cabinet result, then guide Past to fix the file.";
+            data.passiveHintForPast = "Use Future feedback to choose the right archive file.";
+            data.pastDialogue = new[] { "Wrong file gives Future a warning.", "Archive 314 is the right file." };
+            data.futureDialogue = new[] { "KeyState starts Missing.", "WrongFile stays locked.", "Placed enables the lock console.", "Unlocked opens the exit." };
             data.completeCondition = LevelData.LevelCompleteCondition.FuturePlayerReachZone;
             data.targetIdRequired = "L2_Exit";
             data.SanitizeSerializedState();
@@ -150,7 +153,7 @@ namespace FutureHeroQuest.EditorTools
             CreateWorldLabel(parent, "LoopLabel", "FUTURE CLUE -> PAST KEY -> FUTURE EXIT", new Vector3(0f, 0.08f, 4.75f), Color.white, 0.22f);
         }
 
-        private static void CreatePastArchiveProps(Transform parent, Material wood, Material cabinet, Material key, Material clue)
+        private static void CreatePastArchiveProps(Transform parent, Material wood, Material cabinet, Material key, Material clue, Material wrong)
         {
             Transform root = new GameObject("Past_ArchiveProps").transform;
             root.SetParent(parent, false);
@@ -159,34 +162,49 @@ namespace FutureHeroQuest.EditorTools
             CreateBookshelf(root, new Vector3(-3.3f, 0.7f, 0.7f), wood);
             CreateDesk(root, new Vector3(-6.6f, 0f, -2.1f), wood);
 
-            CreateCabinet(root, "Past_Cabinet01", new Vector3(-7.1f, 0.8f, 2.95f), cabinet, "1");
+            CreateCabinet(root, "Past_Cabinet01_Wrong", new Vector3(-7.1f, 0.8f, 2.95f), cabinet, "1");
             GameObject cabinet2 = CreateCabinet(root, "Past_Cabinet02_Target", new Vector3(-5.1f, 0.8f, 2.95f), cabinet, "2");
             CreateCabinet(root, "Past_Cabinet03", new Vector3(-3.1f, 0.8f, 2.95f), cabinet, "3");
 
-            GameObject highlight = CreateCube(root, "Past_Cabinet02_ClueHighlight", new Vector3(-5.1f, 1.75f, 2.72f), new Vector3(1.2f, 0.12f, 0.08f), clue);
-            highlight.SetActive(false);
+            GameObject correctHighlight = CreateCube(root, "Past_Cabinet02_CorrectHighlight", new Vector3(-5.1f, 1.75f, 2.72f), new Vector3(1.2f, 0.12f, 0.08f), clue);
+            correctHighlight.SetActive(false);
+            GameObject wrongHighlight = CreateCube(root, "Past_Cabinet01_WrongHighlight", new Vector3(-7.1f, 1.75f, 2.72f), new Vector3(1.2f, 0.12f, 0.08f), wrong);
+            wrongHighlight.SetActive(false);
             cabinet2.AddComponent<BoxCollider>();
+
+            GameObject wrongRoot = new GameObject("Past_WrongFilePoint_AfterClue");
+            wrongRoot.transform.SetParent(root, false);
+            wrongRoot.transform.position = new Vector3(-7.1f, 0.05f, 1.35f);
+            CreateCube(wrongRoot.transform, "WrongFilePedestal", wrongRoot.transform.position + Vector3.up * 0.12f, new Vector3(1.1f, 0.24f, 1.1f), wrong);
+            CreateCube(wrongRoot.transform, "WrongFileVisual", wrongRoot.transform.position + new Vector3(0f, 0.55f, 0f), new Vector3(0.85f, 0.12f, 0.58f), wrong);
+            CreateWorldLabel(wrongRoot.transform, "VisibleLabel", "FILE 271", wrongRoot.transform.position + new Vector3(0f, 1.0f, 0f), new Color(1f, 0.55f, 0.22f), 0.18f);
+            GameObject wrongPrompt = CreateWorldLabel(wrongRoot.transform, "Prompt", "E: Place Wrong File", wrongRoot.transform.position + new Vector3(0f, 1.32f, 0f), new Color(1f, 0.55f, 0.22f), 0.16f);
+            wrongPrompt.SetActive(false);
+
+            var wrongSender = wrongRoot.AddComponent<SemanticStateSender>();
+            ConfigureSender(wrongSender, EventKind.SetKeyState, EventDirection.PastToFuture, "KeyState", "WrongFile", "L2_Key", GameRole.Past, wrongPrompt, new[] { wrongRoot });
+            wrongRoot.SetActive(false);
 
             GameObject keyRoot = new GameObject("Past_KeyPoint_AfterClue");
             keyRoot.transform.SetParent(root, false);
             keyRoot.transform.position = new Vector3(-5.1f, 0.05f, 1.35f);
             CreateCube(keyRoot.transform, "KeyPedestal", keyRoot.transform.position + Vector3.up * 0.12f, new Vector3(1.1f, 0.24f, 1.1f), key);
             CreateCube(keyRoot.transform, "KeyVisual", keyRoot.transform.position + new Vector3(0f, 0.55f, 0f), new Vector3(0.85f, 0.16f, 0.16f), key);
-            CreateWorldLabel(keyRoot.transform, "VisibleLabel", "PLACE KEY", keyRoot.transform.position + new Vector3(0f, 1.0f, 0f), Color.yellow, 0.18f);
-            GameObject keyPrompt = CreateWorldLabel(keyRoot.transform, "Prompt", "E: Place Key", keyRoot.transform.position + new Vector3(0f, 1.32f, 0f), Color.yellow, 0.18f);
+            CreateWorldLabel(keyRoot.transform, "VisibleLabel", "ARCHIVE 314", keyRoot.transform.position + new Vector3(0f, 1.0f, 0f), Color.yellow, 0.18f);
+            GameObject keyPrompt = CreateWorldLabel(keyRoot.transform, "Prompt", "E: Place Correct File", keyRoot.transform.position + new Vector3(0f, 1.32f, 0f), Color.yellow, 0.16f);
             keyPrompt.SetActive(false);
 
             var sender = keyRoot.AddComponent<SemanticStateSender>();
-            ConfigureSender(sender, EventKind.SetKeyState, EventDirection.PastToFuture, "KeyState", "Placed", "L2_Key", GameRole.Past, keyPrompt, new[] { keyRoot });
+            ConfigureSender(sender, EventKind.SetKeyState, EventDirection.PastToFuture, "KeyState", "Placed", "L2_Key", GameRole.Past, keyPrompt, new[] { keyRoot, wrongRoot });
             keyRoot.SetActive(false);
 
             GameObject activator = new GameObject("Past_KeyPoint_ClueApplier");
             activator.transform.SetParent(root, false);
             var applier = activator.AddComponent<SemanticStateApplier>();
-            ConfigureApplier(applier, "ClueState", "Archive314", "L2_ArchiveClue", new[] { keyRoot, highlight }, null);
+            ConfigureApplier(applier, "ClueState", "Archive314", "L2_ArchiveClue", new[] { keyRoot, wrongRoot, correctHighlight, wrongHighlight }, null);
         }
 
-        private static void CreateFutureArchiveProps(Transform parent, Material wood, Material cabinet, Material dark, Material clue, Material locked, Material unlocked)
+        private static void CreateFutureArchiveProps(Transform parent, Material wood, Material cabinet, Material dark, Material clue, Material locked, Material unlocked, Material wrong, Material missing)
         {
             Transform root = new GameObject("Future_ArchiveProps").transform;
             root.SetParent(parent, false);
@@ -207,41 +225,73 @@ namespace FutureHeroQuest.EditorTools
             var sender = cluePoint.AddComponent<SemanticStateSender>();
             ConfigureSender(sender, EventKind.SetClueState, EventDirection.FutureToPast, "ClueState", "Archive314", "L2_ArchiveClue", GameRole.Future, cluePrompt, null);
 
+            GameObject missingFeedback = CreateStatusPanel(root, "Future_KeyMissingFeedback_Default", new Vector3(5.4f, 0.7f, -2.4f), missing, "KEYSTATE: MISSING\nFILE 314 ABSENT\nDOOR LOCKED", Color.cyan);
+            GameObject wrongFeedback = CreateStatusPanel(root, "Future_WrongFileFeedback", new Vector3(5.4f, 0.7f, -2.4f), wrong, "KEYSTATE: WRONGFILE\nFILE 271 REJECTED\nTELL K TO USE 314", new Color(1f, 0.55f, 0.22f));
+            wrongFeedback.SetActive(false);
+            GameObject placedFeedback = CreateStatusPanel(root, "Future_FilePlacedFeedback", new Vector3(5.4f, 0.7f, -2.4f), unlocked, "KEYSTATE: PLACED\nARCHIVE 314 RESTORED\nUNLOCK CONSOLE READY", Color.green);
+            placedFeedback.SetActive(false);
+
             GameObject doorFrame = CreateCube(root, "Future_LockedDoorFrame", new Vector3(7.6f, 1.1f, 4.25f), new Vector3(1.9f, 2.2f, 0.18f), locked);
             Object.DestroyImmediate(doorFrame.GetComponent<BoxCollider>());
             GameObject lockedDoor = CreateCube(root, "Future_LockedCabinetDoor_Blocker", new Vector3(7.6f, 1.05f, 4.05f), new Vector3(1.35f, 2.1f, 0.36f), locked);
             GameObject openDoor = CreateCube(root, "Future_UnlockedDoorMarker", new Vector3(7.6f, 1.05f, 4.08f), new Vector3(1.35f, 0.16f, 0.36f), unlocked);
             openDoor.SetActive(false);
 
+            GameObject unlockConsole = new GameObject("Future_UnlockConsole_AfterPlaced");
+            unlockConsole.transform.SetParent(root, false);
+            unlockConsole.transform.position = new Vector3(6.55f, 0.05f, 3.15f);
+            CreateCube(unlockConsole.transform, "UnlockConsoleBase", unlockConsole.transform.position + Vector3.up * 0.28f, new Vector3(0.9f, 0.55f, 0.7f), unlocked);
+            CreateWorldLabel(unlockConsole.transform, "VisibleLabel", "UNLOCK", unlockConsole.transform.position + new Vector3(0f, 0.82f, 0f), Color.green, 0.18f);
+            GameObject unlockPrompt = CreateWorldLabel(unlockConsole.transform, "Prompt", "E: Unlock Door", unlockConsole.transform.position + new Vector3(0f, 1.14f, 0f), Color.green, 0.16f);
+            unlockPrompt.SetActive(false);
+            var unlockSender = unlockConsole.AddComponent<SemanticStateSender>();
+            ConfigureSender(unlockSender, EventKind.SetKeyState, EventDirection.Bidirectional, "KeyState", "Unlocked", "L2_Key", GameRole.Future, unlockPrompt, new[] { unlockConsole });
+            unlockConsole.SetActive(false);
+
             GameObject exitBeacon = CreateCube(root, "Future_ExitBeacon_AfterUnlock", new Vector3(7.6f, 0.15f, 5.45f), new Vector3(1.5f, 0.3f, 1.1f), unlocked);
             exitBeacon.SetActive(false);
             CreateWorldLabel(root, "ExitLabel", "EXIT", new Vector3(7.6f, 0.08f, 5.95f), Color.green, 0.24f);
-
-            GameObject unlockApplier = new GameObject("Future_Door_KeyApplier");
-            unlockApplier.transform.SetParent(root, false);
-            var applier = unlockApplier.AddComponent<SemanticStateApplier>();
-            ConfigureApplier(applier, "KeyState", "Placed", "L2_Key", new[] { openDoor, exitBeacon }, new[] { lockedDoor });
 
             GameObject exitZone = CreateCube(root, "Future_ExitReachZone", new Vector3(7.6f, 0.5f, 5.45f), new Vector3(1.6f, 1f, 1.2f), unlocked);
             var exitCollider = exitZone.GetComponent<BoxCollider>();
             if (exitCollider != null) exitCollider.isTrigger = true;
             var reachZone = exitZone.AddComponent<SemanticReachZone>();
             ConfigureReachZone(reachZone, "L2_Exit", GameRole.Future);
+            exitZone.SetActive(false);
+
+            GameObject wrongApplier = new GameObject("Future_WrongFile_KeyApplier");
+            wrongApplier.transform.SetParent(root, false);
+            var wrongStateApplier = wrongApplier.AddComponent<SemanticStateApplier>();
+            ConfigureApplier(wrongStateApplier, "KeyState", "WrongFile", "L2_Key", new[] { wrongFeedback }, new[] { missingFeedback, placedFeedback, unlockConsole });
+
+            GameObject placedApplier = new GameObject("Future_Placed_KeyApplier");
+            placedApplier.transform.SetParent(root, false);
+            var placedStateApplier = placedApplier.AddComponent<SemanticStateApplier>();
+            ConfigureApplier(placedStateApplier, "KeyState", "Placed", "L2_Key", new[] { placedFeedback, unlockConsole }, new[] { missingFeedback, wrongFeedback });
+
+            GameObject unlockApplier = new GameObject("Future_Door_KeyApplier");
+            unlockApplier.transform.SetParent(root, false);
+            var applier = unlockApplier.AddComponent<SemanticStateApplier>();
+            ConfigureApplier(applier, "KeyState", "Unlocked", "L2_Key", new[] { openDoor, exitBeacon, exitZone }, new[] { lockedDoor, missingFeedback, wrongFeedback, placedFeedback, unlockConsole });
         }
 
-        private static void CreateSemanticLoop(Transform parent, Material clue, Material key, Material locked, Material unlocked)
+        private static void CreateSemanticLoop(Transform parent, Material clue, Material key, Material locked, Material unlocked, Material wrong, Material missing)
         {
             Transform root = new GameObject("Semantic_State_Legend").transform;
             root.SetParent(parent, false);
 
-            CreateCube(root, "Step1_FutureToPast", new Vector3(0f, 0.2f, -1.4f), new Vector3(0.35f, 0.35f, 0.35f), clue);
-            CreateWorldLabel(root, "Step1_Label", "1  ClueState=Archive314", new Vector3(0f, 0.2f, -0.95f), Color.cyan, 0.14f);
-            CreateCube(root, "Step2_PastToFuture", new Vector3(0f, 0.2f, 0.25f), new Vector3(0.35f, 0.35f, 0.35f), key);
-            CreateWorldLabel(root, "Step2_Label", "2  KeyState=Placed", new Vector3(0f, 0.2f, 0.7f), Color.yellow, 0.14f);
-            CreateCube(root, "Step3_Unlock", new Vector3(0f, 0.2f, 1.9f), new Vector3(0.35f, 0.35f, 0.35f), unlocked);
-            CreateWorldLabel(root, "Step3_Label", "3  Future door unlocks", new Vector3(0f, 0.2f, 2.35f), Color.green, 0.14f);
+            CreateCube(root, "State_Missing", new Vector3(0f, 0.2f, -2.4f), new Vector3(0.35f, 0.35f, 0.35f), missing);
+            CreateWorldLabel(root, "State_Missing_Label", "0  KeyState=Missing", new Vector3(0f, 0.2f, -1.95f), Color.cyan, 0.14f);
+            CreateCube(root, "Step1_FutureToPast", new Vector3(0f, 0.2f, -1.2f), new Vector3(0.35f, 0.35f, 0.35f), clue);
+            CreateWorldLabel(root, "Step1_Label", "1  Future reads Archive314", new Vector3(0f, 0.2f, -0.75f), Color.cyan, 0.14f);
+            CreateCube(root, "State_WrongFile", new Vector3(0f, 0.2f, 0f), new Vector3(0.35f, 0.35f, 0.35f), wrong);
+            CreateWorldLabel(root, "State_WrongFile_Label", "2A KeyState=WrongFile", new Vector3(0f, 0.2f, 0.45f), new Color(1f, 0.55f, 0.22f), 0.14f);
+            CreateCube(root, "State_Placed", new Vector3(0f, 0.2f, 1.2f), new Vector3(0.35f, 0.35f, 0.35f), key);
+            CreateWorldLabel(root, "State_Placed_Label", "2B KeyState=Placed", new Vector3(0f, 0.2f, 1.65f), Color.yellow, 0.14f);
+            CreateCube(root, "State_Unlocked", new Vector3(0f, 0.2f, 2.4f), new Vector3(0.35f, 0.35f, 0.35f), unlocked);
+            CreateWorldLabel(root, "State_Unlocked_Label", "3  KeyState=Unlocked", new Vector3(0f, 0.2f, 2.85f), Color.green, 0.14f);
 
-            CreateCube(root, "LockedStateSwatch", new Vector3(0f, 0.2f, 3.15f), new Vector3(0.28f, 0.28f, 0.28f), locked);
+            CreateCube(root, "LockedStateSwatch", new Vector3(0f, 0.2f, 3.65f), new Vector3(0.28f, 0.28f, 0.28f), locked);
         }
 
         private static void CreateLevelManager(LevelData levelData)
@@ -255,6 +305,21 @@ namespace FutureHeroQuest.EditorTools
             serialized.FindProperty("nextLevelScene").stringValue = "Level03_ClubRoom";
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(photonView);
+        }
+
+        private static void CreateInitialKeyState(Transform parent)
+        {
+            var initializer = new GameObject("Semantic_KeyState_Missing_Initializer");
+            initializer.transform.SetParent(parent, false);
+            var sender = initializer.AddComponent<SemanticInitialStateSender>();
+            var serialized = new SerializedObject(sender);
+            serialized.FindProperty("eventKind").enumValueIndex = (int)EventKind.SetKeyState;
+            serialized.FindProperty("direction").enumValueIndex = (int)EventDirection.Bidirectional;
+            serialized.FindProperty("stateKey").stringValue = "KeyState";
+            serialized.FindProperty("stateValue").stringValue = "Missing";
+            serialized.FindProperty("targetId").stringValue = "L2_Key";
+            serialized.FindProperty("sendDelaySeconds").floatValue = 0.25f;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void CreatePlayerSpawner()
@@ -297,7 +362,7 @@ namespace FutureHeroQuest.EditorTools
             Text flow = CreateText(
                 canvasGo.transform,
                 "Flow",
-                "Future: read Archive 314 -> Past: place key -> Future: door unlocks -> reach EXIT",
+                "Future: inspect missing file -> Past: wrong or correct file -> Future: unlock console -> reach EXIT",
                 15,
                 TextAnchor.UpperLeft);
             SetRect(flow.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(380f, -52f), new Vector2(740f, 34f));
@@ -325,6 +390,16 @@ namespace FutureHeroQuest.EditorTools
         {
             CreateCube(parent, "ArchiveDesk_Top", position + new Vector3(0f, 0.55f, 0f), new Vector3(1.9f, 0.18f, 1.05f), material);
             CreateCube(parent, "ArchiveDesk_Base", position + new Vector3(0f, 0.27f, 0f), new Vector3(1.55f, 0.5f, 0.72f), material);
+        }
+
+        private static GameObject CreateStatusPanel(Transform parent, string name, Vector3 position, Material material, string label, Color labelColor)
+        {
+            GameObject panel = new GameObject(name);
+            panel.transform.SetParent(parent, false);
+            panel.transform.position = position;
+            CreateCube(panel.transform, "Panel", position, new Vector3(2.25f, 0.12f, 1.15f), material);
+            CreateWorldLabel(panel.transform, "Label", label, position + new Vector3(0f, 0.35f, 0f), labelColor, 0.12f);
+            return panel;
         }
 
         private static GameObject CreateCube(Transform parent, string name, Vector3 position, Vector3 scale, Material material)
