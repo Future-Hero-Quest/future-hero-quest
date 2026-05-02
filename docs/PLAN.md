@@ -37,14 +37,17 @@ isProject: false
 
 DDL：北京时间 2026-05-03 19:00 · 当前阶段：发布验收与提交准备
 
-## 当前执行修订（2026-05-02 11:20）
+## 当前执行修订（2026-05-02 11:45）
 
 原计划中的大方向仍成立：双人联网、过去/未来信息差、离散事件同步。但当前项目已经进入发布集成阶段，后续不再重做关卡、不再追 WebGL/Mac 首发。
 
+当前发布阶段线程调度、v1.0 定义、v1.0 后续方向与里程碑映射，以 `docs/THREAD_PLAN.md` 为准。本文档保留完整历史设计和最初执行方案。
+
 当前基线：
 
-- `origin/dev = c4d742d merge: integrate art audio rescue pass`
-- `origin/main = 07f2910 docs(workflow): add thread handoff prompts`
+- `origin/dev = d48de19 docs(readme): localize GitHub front page`
+- `origin/main = 3b6dea5 docs(readme): localize GitHub front page`（docs-only，尚未玩法 promote）
+- 最后玩法集成提交：`c4d742d merge: integrate art audio rescue pass`
 - Unity = `6.4.2f1`
 - 最终 Build Settings = `Launcher` + `Level01_Bridge` + `Level02_Archive` + `Level03_ClubRoom`
 - Windows batchmode 构建已通过；最终仍需在主 Unity 工作区空闲时跑一次标准路径构建
@@ -61,6 +64,7 @@ DDL：北京时间 2026-05-03 19:00 · 当前阶段：发布验收与提交准�
 
 当前权威发布文档：
 
+- `docs/THREAD_PLAN.md`
 - `docs/RELEASE_ACCEPTANCE.md`
 - `docs/ITCH_PAGE.md`
 - 仓库根 `README.md`

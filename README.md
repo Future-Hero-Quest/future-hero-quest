@@ -113,6 +113,7 @@ E:\黑客松\FHQ-Workspace\build\NetworkDemoWin\FutureHeroQuest.exe
 
 | 文档 | 用途 |
 |---|---|
+| [`docs/THREAD_PLAN.md`](docs/THREAD_PLAN.md) | 当前发布阶段线程 Plan 与里程碑定义 |
 | [`docs/RELEASE_ACCEPTANCE.md`](docs/RELEASE_ACCEPTANCE.md) | 最终验收清单 |
 | [`docs/ITCH_PAGE.md`](docs/ITCH_PAGE.md) | itch.io 页面草稿 |
 | [`docs/PLAN.md`](docs/PLAN.md) | 原始计划与当前发布修订 |
