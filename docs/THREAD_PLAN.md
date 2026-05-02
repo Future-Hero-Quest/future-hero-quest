@@ -25,7 +25,7 @@ DDL：2026-05-03 19:00 UTC+8
 | 最后玩法集成提交 | `c4d742d merge: integrate art audio rescue pass` |
 | Unity | `6.4.2f1` / `6000.4.2f1` |
 | 发布目标 | Windows 双客户端 demo |
-| 当前篇章 | v1.0《都市怪谈篇》 |
+| 当前篇章 | v1.0 Chapter 1《都市怪谈篇》 |
 | 最终场景 | `Launcher` + 《断桥回声》`Level01_Bridge` + 《314号档案》`Level02_Archive` + 《最后的社团室》`Level03_ClubRoom` |
 | 当前状态 | 集成基本完成，等待 Editor + exe 双端人工验收 |
 
@@ -83,7 +83,7 @@ flowchart LR
 | v0.85 | GitHub README / 发布文档门面 | 完成 |
 | v0.9 | Editor + exe 双端人工验收 | 待做 |
 | v0.95 | 标准路径 release candidate 包 | 待做 |
-| v1.0 | 《都市怪谈篇》Hackathon Submission Cut：itch.io 提交、`dev -> main` promote、release tag | 待做 |
+| v1.0 | Chapter 1《都市怪谈篇》Hackathon Submission Cut：itch.io 提交、`dev -> main` promote、release tag | 待做 |
 
 `v1.0` 之后的计划进入 `docs/CONTENT_ROADMAP.md`，不进入 DDL 前执行范围。
 
@@ -91,9 +91,9 @@ flowchart LR
 
 详见 `docs/CONTENT_ROADMAP.md`。这里保留边界结论：
 
-- v1.0《都市怪谈篇》可以作为黑客松完结点。
+- v1.0 Chapter 1《都市怪谈篇》可以作为黑客松完结点。
 - v1.0 不是项目内容完结点。
-- v1.1 / v1.5 / v2.0 / v3.0 的具体范围，提交后再按时间和反馈确定。
+- 后续《赌局篇》《电子世界篇》等章节只进 `docs/CONTENT_ROADMAP.md`，不进入 DDL 前任务。
 
 ## 当前下一步
 
