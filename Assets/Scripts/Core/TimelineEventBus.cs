@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -13,16 +14,29 @@ namespace FutureHeroQuest.Core
     /// v2 设计：双方都能发，事件携带 Direction 字段，接收方按方向决定是否响应
     ///
     /// 历史事件被保留以支持重连补发（幂等）。
-    /// 必须挂在场景中带 PhotonView 的常驻 GameObject 上（DontDestroyOnLoad）。
+    /// 通过 Photon RaiseEvent 广播，不依赖场景 PhotonView ID，避免跨场景持久对象和关卡对象 ID 冲突。
     /// </summary>
-    [RequireComponent(typeof(PhotonView))]
     public class TimelineEventBus : MonoBehaviourPunCallbacks
     {
+        private const byte TimelineEventCode = 42;
+
         public static TimelineEventBus Instance { get; private set; }
 
         public event Action<TimelineEvent> OnEventReceived;
 
         private readonly List<TimelineEvent> _eventHistory = new List<TimelineEvent>();
+
+        public override void OnEnable()
+        {
+            base.OnEnable();
+            PhotonNetwork.NetworkingClient.EventReceived += HandlePhotonEvent;
+        }
+
+        public override void OnDisable()
+        {
+            PhotonNetwork.NetworkingClient.EventReceived -= HandlePhotonEvent;
+            base.OnDisable();
+        }
 
         private void Awake()
         {
@@ -81,7 +95,17 @@ namespace FutureHeroQuest.Core
         private void Publish(TimelineEvent evt)
         {
             string json = JsonUtility.ToJson(evt);
-            photonView.RPC(nameof(RPC_ReceiveEvent), RpcTarget.AllViaServer, json);
+            if (!PhotonNetwork.InRoom)
+            {
+                ReceiveEventJson(json);
+                return;
+            }
+
+            var options = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+            if (!PhotonNetwork.RaiseEvent(TimelineEventCode, json, options, SendOptions.SendReliable))
+            {
+                Debug.LogWarning($"[TimelineEventBus] Failed to raise event {evt.Kind}.");
+            }
         }
 
         private bool CanSend(EventDirection direction, EventKind kind)
@@ -117,8 +141,16 @@ namespace FutureHeroQuest.Core
             SendEvent(kind, EventDirection.Bidirectional, targetId, payload);
         }
 
-        [PunRPC]
-        private void RPC_ReceiveEvent(string json)
+        private void HandlePhotonEvent(EventData photonEvent)
+        {
+            if (photonEvent.Code != TimelineEventCode) return;
+            if (photonEvent.CustomData is string json)
+            {
+                ReceiveEventJson(json);
+            }
+        }
+
+        private void ReceiveEventJson(string json)
         {
             var evt = JsonUtility.FromJson<TimelineEvent>(json);
             _eventHistory.Add(evt);
@@ -131,7 +163,8 @@ namespace FutureHeroQuest.Core
             foreach (var evt in _eventHistory)
             {
                 string json = JsonUtility.ToJson(evt);
-                photonView.RPC(nameof(RPC_ReceiveEvent), newPlayer, json);
+                var options = new RaiseEventOptions { TargetActors = new[] { newPlayer.ActorNumber } };
+                PhotonNetwork.RaiseEvent(TimelineEventCode, json, options, SendOptions.SendReliable);
             }
         }
 

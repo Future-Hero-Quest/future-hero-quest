@@ -68,6 +68,7 @@ namespace FutureHeroQuest.EditorTools
         private static void AutoBootstrapIfNeeded()
         {
             if (!Directory.Exists("Assets/Photon")) return;
+            if (FhqBuildSceneUtility.HasCompleteFinalSceneSet() && File.Exists(PastPrefabPath) && File.Exists(FuturePrefabPath)) return;
             if (File.Exists(LauncherScenePath) && File.Exists(LevelScenePath) && File.Exists(PastPrefabPath) && File.Exists(FuturePrefabPath)) return;
             GenerateNetworkDemo();
         }
@@ -161,8 +162,6 @@ namespace FutureHeroQuest.EditorTools
             network.AddComponent<NetworkManager>();
 
             var bus = new GameObject("TimelineEventBus");
-            var busPhotonView = bus.AddComponent<PhotonView>();
-            busPhotonView.sceneViewId = 1;
             bus.AddComponent<TimelineEventBus>();
 
             CreateLauncherCanvas();

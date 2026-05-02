@@ -24,6 +24,16 @@ namespace FutureHeroQuest.EditorTools
             return false;
         }
 
+        public static bool HasCompleteFinalSceneSet()
+        {
+            foreach (string scenePath in FinalScenePaths)
+            {
+                if (!File.Exists(scenePath)) return false;
+            }
+
+            return true;
+        }
+
         public static void ApplyFinalBuildSettings()
         {
             string[] scenePaths = GetExistingFinalScenePaths(logMissingAsError: false);

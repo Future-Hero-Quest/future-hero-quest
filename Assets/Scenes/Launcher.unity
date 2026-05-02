@@ -681,7 +681,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 758444018}
-  - component: {fileID: 758444017}
   - component: {fileID: 758444016}
   m_Layer: 0
   m_Name: TimelineEventBus
@@ -702,28 +701,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 860a1eebc65325c4c9f051290b82b535, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FutureHeroQuest.Core.TimelineEventBus
---- !u!114 &758444017
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 758444015}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonView
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 1
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!4 &758444018
 Transform:
   m_ObjectHideFlags: 0

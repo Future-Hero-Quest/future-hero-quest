@@ -369,10 +369,8 @@ namespace FutureHeroQuest.EditorTools
             EditorUtility.SetDirty(levelPhotonView);
 
             var bus = new GameObject("TimelineEventBus");
-            var busPhotonView = bus.AddComponent<PhotonView>();
-            busPhotonView.sceneViewId = 1;
             bus.AddComponent<TimelineEventBus>();
-            EditorUtility.SetDirty(busPhotonView);
+            EditorUtility.SetDirty(bus);
 
             var store = new GameObject("SemanticStateStore");
             store.AddComponent<SemanticStateStore>();
