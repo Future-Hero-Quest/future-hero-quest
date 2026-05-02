@@ -173,3 +173,4 @@ MonoBehaviour:
   moveSpeed: 4
   rotateSpeed: 720
   gravity: -9.81
+  fallRespawnY: -8

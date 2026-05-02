@@ -230,11 +230,11 @@ namespace FutureHeroQuest.EditorTools
             doorOpen.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
             doorOpen.SetActive(false);
 
-            var exitPad = CreateCube("ExitPad_L3_Exit_Visual", parent, new Vector3(5.35f, 0.02f, 0f), new Vector3(1.1f, 0.04f, 1.6f), materials["exit"], false);
+            var exitPad = CreateCube("ExitPad_L3_Exit_Visual", parent, new Vector3(5.05f, 0.02f, 0f), new Vector3(1.8f, 0.04f, 2.6f), materials["exit"], false);
             exitPad.SetActive(false);
-            var exitLabel = CreateWorldText("Label_L3_Exit", "EXIT", parent, new Vector3(5.2f, 1.55f, -1.05f), materials["exit"].color, 0.065f);
+            var exitLabel = CreateWorldText("Label_L3_Exit", "E: EXIT", parent, new Vector3(5.05f, 1.55f, -1.25f), materials["exit"].color, 0.065f);
             exitLabel.SetActive(false);
-            var exitZone = CreateCube("ExitZone_L3_Exit", parent, new Vector3(5.45f, 0.65f, 0f), new Vector3(1.4f, 1.3f, 2.1f), materials["exit"], true);
+            var exitZone = CreateCube("ExitZone_L3_Exit", parent, new Vector3(5.05f, 0.65f, 0f), new Vector3(2.0f, 1.3f, 3.0f), materials["exit"], true);
             var exitRenderer = exitZone.GetComponent<MeshRenderer>();
             if (exitRenderer != null) exitRenderer.enabled = false;
             var exitCollider = exitZone.GetComponent<BoxCollider>();
@@ -605,6 +605,9 @@ namespace FutureHeroQuest.EditorTools
             so.FindProperty("restrictToRole").boolValue = true;
             so.FindProperty("requiredRole").enumValueIndex = (int)role;
             so.FindProperty("sendOnce").boolValue = true;
+            so.FindProperty("allowInteractKey").boolValue = true;
+            so.FindProperty("interactKey").enumValueIndex = (int)KeyCode.E;
+            so.FindProperty("interactRadius").floatValue = 2.2f;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
