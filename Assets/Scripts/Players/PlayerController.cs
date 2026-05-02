@@ -13,6 +13,7 @@ namespace FutureHeroQuest.Players
         [SerializeField] private float moveSpeed = 4.0f;
         [SerializeField] private float rotateSpeed = 720.0f;
         [SerializeField] private float gravity = -9.81f;
+        [SerializeField] private float fallRespawnY = -8.0f;
 
         private CharacterController _cc;
         private Vector3 _velocity;
@@ -32,6 +33,13 @@ namespace FutureHeroQuest.Players
         private void Update()
         {
             if (!photonView.IsMine) return;
+
+            if (transform.position.y < fallRespawnY && PlayerSpawner.TryGetSpawnPoseForLocalRole(out Vector3 spawnPos, out Quaternion spawnRot))
+            {
+                TeleportTo(spawnPos, spawnRot);
+                Debug.LogWarning($"[PlayerController] Local player fell below {fallRespawnY}; returned to spawn {spawnPos}.");
+                return;
+            }
 
             float h = Input.GetAxisRaw("Horizontal");
             float v = Input.GetAxisRaw("Vertical");
@@ -53,6 +61,18 @@ namespace FutureHeroQuest.Players
                 Quaternion targetRot = Quaternion.LookRotation(horizontal);
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, rotateSpeed * Time.deltaTime);
             }
+        }
+
+        public void TeleportTo(Vector3 position, Quaternion rotation)
+        {
+            if (_cc == null) _cc = GetComponent<CharacterController>();
+            bool wasEnabled = _cc != null && _cc.enabled;
+            if (_cc != null) _cc.enabled = false;
+
+            transform.SetPositionAndRotation(position, rotation);
+            _velocity = Vector3.zero;
+
+            if (_cc != null) _cc.enabled = wasEnabled;
         }
     }
 }

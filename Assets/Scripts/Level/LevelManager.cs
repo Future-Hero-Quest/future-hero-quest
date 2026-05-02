@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using FutureHeroQuest.Core;
+using FutureHeroQuest.Players;
 using FutureHeroQuest.Puzzle;
 using Photon.Pun;
 using UnityEngine;
@@ -76,6 +78,12 @@ namespace FutureHeroQuest.Level
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
+                if (PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient)
+                {
+                    Debug.Log("[LevelManager] Reset ignored on non-master client. Use the host/Editor side to reset the level.");
+                    return;
+                }
+
                 RequestResetLevel();
             }
         }
@@ -182,8 +190,7 @@ namespace FutureHeroQuest.Level
         private void RPC_RequestResetLevel(PhotonMessageInfo info)
         {
             if (!PhotonNetwork.IsMasterClient) return;
-            Debug.Log($"[LevelManager] Reset requested by actor #{info.Sender?.ActorNumber}");
-            ResetFromMaster();
+            Debug.LogWarning($"[LevelManager] Ignored remote reset request by actor #{info.Sender?.ActorNumber}; reset is host-only.");
         }
 
         private void ResetFromMaster()
@@ -193,27 +200,40 @@ namespace FutureHeroQuest.Level
 
             if (!PhotonNetwork.InRoom)
             {
-                RPC_PrepareResetLevel();
+                PrepareResetLevelLocal();
                 LoadCurrentScene();
                 return;
             }
 
-            photonView.RPC(nameof(RPC_PrepareResetLevel), RpcTarget.AllViaServer);
+            PrepareResetLevelLocal();
+            photonView.RPC(nameof(RPC_PrepareResetLevel), RpcTarget.Others);
 
             if (PhotonNetwork.IsMasterClient)
             {
-                LoadCurrentScene();
+                StartCoroutine(LoadCurrentSceneAfterResetCleanup());
             }
         }
 
         [PunRPC]
         private void RPC_PrepareResetLevel()
         {
+            PrepareResetLevelLocal();
+        }
+
+        private void PrepareResetLevelLocal()
+        {
             if (TimelineEventBus.Instance != null) TimelineEventBus.Instance.ClearHistory();
+            PlayerSpawner.DestroyOwnedPlayerObjectsForSceneReload();
             _completed = false;
             _completionRequested = false;
             _changedTargetIds.Clear();
             CancelInvoke(nameof(LoadNext));
+        }
+
+        private IEnumerator LoadCurrentSceneAfterResetCleanup()
+        {
+            yield return new WaitForSeconds(0.25f);
+            LoadCurrentScene();
         }
 
         private void LoadCurrentScene()

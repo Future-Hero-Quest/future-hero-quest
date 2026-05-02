@@ -11,12 +11,30 @@ namespace FutureHeroQuest.Players
     /// </summary>
     public class PlayerSpawner : MonoBehaviour
     {
+        public static PlayerSpawner Instance { get; private set; }
+
         [SerializeField] private string pastPrefabName = "PastPlayer";
         [SerializeField] private string futurePrefabName = "FuturePlayer";
         [SerializeField] private Transform pastSpawnPoint;
         [SerializeField] private Transform futureSpawnPoint;
 
         private bool _hasSpawned;
+
+        private void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+        }
 
         private void Start()
         {
@@ -47,9 +65,65 @@ namespace FutureHeroQuest.Players
             Vector3 pos = spawn != null ? spawn.position : Vector3.zero;
             Quaternion rot = spawn != null ? spawn.rotation : Quaternion.identity;
 
+            if (TryReuseOrCleanOwnedPlayer(pos, rot))
+            {
+                _hasSpawned = true;
+                Debug.Log($"[PlayerSpawner] Reused existing local player for role {role} at {pos}.");
+                yield break;
+            }
+
             PhotonNetwork.Instantiate(prefabName, pos, rot);
             _hasSpawned = true;
             Debug.Log($"[PlayerSpawner] Spawned {prefabName} at {pos} for role {role}. QueueRunning={PhotonNetwork.IsMessageQueueRunning}");
+        }
+
+        private bool TryReuseOrCleanOwnedPlayer(Vector3 pos, Quaternion rot)
+        {
+            PlayerController kept = null;
+            var players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var player in players)
+            {
+                if (player == null || player.photonView == null || !player.photonView.IsMine) continue;
+                if (kept == null)
+                {
+                    kept = player;
+                    continue;
+                }
+
+                PhotonNetwork.Destroy(player.gameObject);
+            }
+
+            if (kept == null) return false;
+
+            kept.TeleportTo(pos, rot);
+            return true;
+        }
+
+        public static void DestroyOwnedPlayerObjectsForSceneReload()
+        {
+            if (!PhotonNetwork.InRoom) return;
+
+            var players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var player in players)
+            {
+                if (player == null || player.photonView == null || !player.photonView.IsMine) continue;
+                PhotonNetwork.Destroy(player.gameObject);
+            }
+        }
+
+        public static bool TryGetSpawnPoseForLocalRole(out Vector3 position, out Quaternion rotation)
+        {
+            position = Vector3.zero;
+            rotation = Quaternion.identity;
+
+            if (Instance == null || NetworkManager.Instance == null) return false;
+            var role = NetworkManager.Instance.MyRole;
+            Transform spawn = role == GameRole.Past ? Instance.pastSpawnPoint : Instance.futureSpawnPoint;
+            if (spawn == null) return false;
+
+            position = spawn.position;
+            rotation = spawn.rotation;
+            return true;
         }
 
         private void OnGUI()
