@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 [DisallowMultipleComponent]
 public class TemporalPhysicsProjector : MonoBehaviour
 {
+    private const float DefaultStaticBoundsPadding = 4f;
+    private const float DefaultVerticalBoundsPadding = 12f;
+
     [Header("Simulation")]
     [SerializeField] private string projectionSceneName = "TemporalPhysicsProjection";
     [SerializeField] private float simulationStep = 0.02f;
@@ -28,8 +31,8 @@ public class TemporalPhysicsProjector : MonoBehaviour
     [SerializeField] private bool autoFitBoundsFromStaticColliders = true;
     [SerializeField] private Vector3 manualBoundsCenter = Vector3.zero;
     [SerializeField] private Vector3 manualBoundsSize = new Vector3(80f, 40f, 80f);
-    [SerializeField] private float staticBoundsPadding;
-    [SerializeField] private float verticalBoundsPadding;
+    [SerializeField] private float staticBoundsPadding = DefaultStaticBoundsPadding;
+    [SerializeField] private float verticalBoundsPadding = DefaultVerticalBoundsPadding;
     [SerializeField] private float boundaryContactTolerance = 0.02f;
 
     public event Action<TemporalWorldState> OnProjectionCompleted;
@@ -40,6 +43,8 @@ public class TemporalPhysicsProjector : MonoBehaviour
 
     private readonly List<TemporalPhysicsBody> trackedMainBodies = new List<TemporalPhysicsBody>();
     private readonly List<TemporalPhysicsBody> trackedCloneBodies = new List<TemporalPhysicsBody>();
+    private readonly List<ITemporalProjectionStepBehaviour> projectionStepBehaviours =
+        new List<ITemporalProjectionStepBehaviour>();
     private readonly Dictionary<TemporalPhysicsBody, TemporalPhysicsBody> mainToClone =
         new Dictionary<TemporalPhysicsBody, TemporalPhysicsBody>();
     private readonly Dictionary<TemporalPhysicsBody, Collider[]> cloneColliders =
@@ -148,6 +153,7 @@ public class TemporalPhysicsProjector : MonoBehaviour
             CloneStaticEnvironment(sourceScene);
             CloneTemporalBodies(sourceScene);
             ApplyMainStatesToClones();
+            RegisterProjectionStepBehaviours();
             Bounds projectionBounds = CalculateProjectionBounds(sourceScene);
             CreateProjectionBoundaryTriggers(projectionBounds);
             RemoveCloneBodiesTouchingBoundary(projectionBounds);
@@ -167,6 +173,8 @@ public class TemporalPhysicsProjector : MonoBehaviour
                 while (stepsThisFrame < frameBudget && simulatedSteps < maxSteps)
                 {
                     projectionPhysicsScene.Simulate(stepDuration);
+                    RunProjectionStepBehaviours(stepDuration, simulatedSteps);
+                    RegisterProjectionSceneTemporalBodies();
                     RemoveCloneBodiesTouchingBoundary(projectionBounds);
                     simulatedSteps++;
                     stepsThisFrame++;
@@ -192,6 +200,7 @@ public class TemporalPhysicsProjector : MonoBehaviour
                 }
             }
 
+            RegisterProjectionSceneTemporalBodies();
             result = CaptureProjectionWorldState(simulatedSteps, converged, stepDuration);
             LastBoundaryRemovalCount = currentBoundaryRemovalCount;
         }
@@ -401,6 +410,81 @@ public class TemporalPhysicsProjector : MonoBehaviour
         return worldState;
     }
 
+    private void RegisterProjectionSceneTemporalBodies()
+    {
+        if (!projectionScene.IsValid())
+        {
+            return;
+        }
+
+        TemporalPhysicsBody.EnsureAllRigidbodiesHaveTemporalBodies(projectionScene, true);
+        TemporalPhysicsBody[] bodies = FindObjectsByType<TemporalPhysicsBody>(FindObjectsInactive.Include);
+        foreach (TemporalPhysicsBody body in bodies)
+        {
+            if (body == null || body.gameObject.scene != projectionScene)
+            {
+                continue;
+            }
+
+            if (body.IsExcludedFromTemporalProjection() || trackedCloneBodies.Contains(body))
+            {
+                continue;
+            }
+
+            trackedCloneBodies.Add(body);
+            cloneColliders[body] = body.GetComponentsInChildren<Collider>(includeInactiveBodies);
+        }
+    }
+
+    private void RegisterProjectionStepBehaviours()
+    {
+        projectionStepBehaviours.Clear();
+
+        if (!projectionScene.IsValid())
+        {
+            return;
+        }
+
+        MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include);
+
+        foreach (MonoBehaviour behaviour in behaviours)
+        {
+            if (behaviour == null ||
+                behaviour.gameObject.scene != projectionScene ||
+                behaviour is not ITemporalProjectionStepBehaviour stepBehaviour ||
+                !stepBehaviour.RunInTemporalProjection ||
+                projectionStepBehaviours.Contains(stepBehaviour))
+            {
+                continue;
+            }
+
+            projectionStepBehaviours.Add(stepBehaviour);
+        }
+    }
+
+    private void RunProjectionStepBehaviours(float stepDuration, int simulatedStep)
+    {
+        for (int i = projectionStepBehaviours.Count - 1; i >= 0; i--)
+        {
+            ITemporalProjectionStepBehaviour stepBehaviour = projectionStepBehaviours[i];
+            if (stepBehaviour is not MonoBehaviour behaviour || behaviour == null)
+            {
+                projectionStepBehaviours.RemoveAt(i);
+                continue;
+            }
+
+            if (!behaviour.isActiveAndEnabled)
+            {
+                continue;
+            }
+
+            stepBehaviour.SimulateProjectionStep(
+                projectionPhysicsScene,
+                stepDuration,
+                simulatedStep);
+        }
+    }
+
     private bool AreCloneBodiesStatic()
     {
         float linearThresholdSqr = linearVelocityThreshold * linearVelocityThreshold;
@@ -480,10 +564,13 @@ public class TemporalPhysicsProjector : MonoBehaviour
             return bounds;
         }
 
+        float horizontalPadding = Mathf.Max(DefaultStaticBoundsPadding, staticBoundsPadding);
+        float verticalPadding = Mathf.Max(DefaultVerticalBoundsPadding, verticalBoundsPadding);
+
         Vector3 size = bounds.size;
-        size.x += staticBoundsPadding * 2f;
-        size.z += staticBoundsPadding * 2f;
-        size.y += verticalBoundsPadding * 2f;
+        size.x += horizontalPadding * 2f;
+        size.z += horizontalPadding * 2f;
+        size.y += verticalPadding * 2f;
         bounds.size = GetSafeBoundsSize(size);
         return bounds;
     }
@@ -722,13 +809,58 @@ public class TemporalPhysicsProjector : MonoBehaviour
         MonoBehaviour[] behaviours = cloneRoot.GetComponentsInChildren<MonoBehaviour>(true);
         foreach (MonoBehaviour behaviour in behaviours)
         {
-            if (behaviour == null || behaviour is TemporalPhysicsBody)
+            if (behaviour == null ||
+                behaviour is TemporalPhysicsBody ||
+                behaviour is TemporalProjectionBoundary ||
+                behaviour is TemporalProjectionRuntimeBehaviourAllowList)
             {
+                continue;
+            }
+
+            if (ShouldRunBehaviourInProjection(behaviour, out bool forceEnable))
+            {
+                if (forceEnable)
+                {
+                    behaviour.enabled = true;
+                }
+
                 continue;
             }
 
             behaviour.enabled = false;
         }
+    }
+
+    private bool ShouldRunBehaviourInProjection(MonoBehaviour behaviour, out bool forceEnable)
+    {
+        forceEnable = false;
+        if (behaviour == null)
+        {
+            return false;
+        }
+
+        if (behaviour is ITemporalProjectionRuntimeBehaviour runtimeBehaviour &&
+            runtimeBehaviour.RunInTemporalProjection)
+        {
+            forceEnable = true;
+            return true;
+        }
+
+        TemporalProjectionRuntimeBehaviourAllowList[] allowLists =
+            behaviour.GetComponentsInParent<TemporalProjectionRuntimeBehaviourAllowList>(true);
+
+        foreach (TemporalProjectionRuntimeBehaviourAllowList allowList in allowLists)
+        {
+            if (allowList == null || !allowList.Allows(behaviour))
+            {
+                continue;
+            }
+
+            forceEnable = allowList.ForceEnableAllowedBehaviours;
+            return true;
+        }
+
+        return false;
     }
 
     private int CompareHierarchyDepth(TemporalPhysicsBody a, TemporalPhysicsBody b)
@@ -759,6 +891,7 @@ public class TemporalPhysicsProjector : MonoBehaviour
     {
         trackedMainBodies.Clear();
         trackedCloneBodies.Clear();
+        projectionStepBehaviours.Clear();
         mainToClone.Clear();
         cloneColliders.Clear();
 

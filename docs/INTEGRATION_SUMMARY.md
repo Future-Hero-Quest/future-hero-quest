@@ -66,8 +66,41 @@ Assets/
 
 3. **Temporal Physics Toolkit 集成**
    - `TemporalPhysicsProjector` 在投影场景中模拟物理
+   - 投影物理每步 `Simulate(stepDuration)` 后会执行 `ITemporalProjectionStepBehaviour`
+   - `TemporalProjectionFractureOnCollision` 可在投影加速中检测 trigger 并释放 `fracFragments`
    - `PastFutureTimelineController` 管理过去/未来状态
    - 投影完成后通过 `OnProjectionCompleted` 事件将未来状态应用到场景
+
+## Newton Demo Audit
+
+一手参考来源：
+
+- `E:\黑客松\NewtonAssetsDemo-Lite-20260502-215546`
+- `E:\黑客松\FHQ-Workspace\external-inspect\newton-temporal-fracture-step-reference-20260502`
+
+已复核并移植的行为：
+
+- `TemporalPhysicsProjector` 注册投影场景中的 `ITemporalProjectionStepBehaviour`。
+- 每次 `projectionPhysicsScene.Simulate(stepDuration)` 后调用 `RunProjectionStepBehaviours(...)`。
+- step behaviour 执行后重新注册投影场景中新出现的 `TemporalPhysicsBody`，用于捕获碎裂释放出的刚体碎片。
+- runtime behaviour allow-list 允许特定 MonoBehaviour 在 projection clone 中保持启用。
+- projection bounds 使用默认 horizontal padding `4f`、vertical padding `12f`，避免静态环境边界过紧。
+- `TemporalProjectionFractureOnCollision` 支持通过 tag 或 GameObject name fallback 识别 `TemporalFractureTrigger`，激活 `fracFragments` 并继承源刚体速度/角速度。
+
+同步位置：
+
+- `Assets/TemporalPhysicsToolkit/Runtime/TemporalPhysicsProjector.cs`
+- `Assets/TemporalPhysicsToolkit/Runtime/TemporalProjectionRuntimeBehaviourAllowList.cs`
+- `Assets/TemporalPhysicsToolkit/Runtime/TemporalProjectionFractureOnCollision.cs`
+- `TemporalPhysicsToolkit/Runtime/TemporalPhysicsProjector.cs`
+- `TemporalPhysicsToolkit/Runtime/TemporalProjectionRuntimeBehaviourAllowList.cs`
+- `TemporalPhysicsToolkit/Runtime/TemporalProjectionFractureOnCollision.cs`
+
+仍需场景级确认：
+
+- `Scene02_MountainTunnel` 需要放置真实 `TemporalFractureTrigger`、投影目标、`fracFragments` root 和对应 collider/rigidbody。
+- 需要在 Unity 中确认 `TunnelCollapseController.useTemporalProjection = true` 时不会只走 active-toggle fallback。
+- 需要做一次 Scene02 play/smoke test，确认加速投影时 fragment 被 step hook 激活，并且玩家/相机/伪一镜切换不回退。
 
 ### 场景搭建指南
 
@@ -94,6 +127,6 @@ E:\unity\6000.4.2f1\Editor\Unity.exe -quit -batchmode -projectPath E:\黑客松\
 
 ## 已知限制
 
-- Temporal Physics Toolkit 的完整运行时破碎（OpenFracture）尚未接入
+- Temporal Physics Toolkit 的 projection-step 碎裂 hook 已接入；Scene02 的真实 fracture 对象摆放和 play smoke test 仍需确认
 - 分屏未来视图（TemporalSplitScreenFutureView）需要额外场景配置
 - Photon 房间流程尚未接入 Outline 场景
