@@ -29,8 +29,10 @@ New-content branch:
 
 ```text
 branch: feature/new-content-integration
-current local head before push: a24d839 docs(content): plan new Scene02 integration workspace
 base: origin/main @ 98daed9
+contains:
+- a24d839 docs(content): plan new Scene02 integration workspace
+- dc87394 docs(content): add new-content handoff package
 ```
 
 ## What Main Already Contains
