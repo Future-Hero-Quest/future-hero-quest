@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using FutureHeroQuest.Core;
+using FutureHeroQuest.Players;
 using FutureHeroQuest.Puzzle;
 using Photon.Pun;
 using UnityEngine;
@@ -76,6 +78,12 @@ namespace FutureHeroQuest.Level
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
+                if (PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient)
+                {
+                    Debug.Log("[LevelManager] Reset ignored on non-master client. Use the host/Editor side to reset the level.");
+                    return;
+                }
+
                 RequestResetLevel();
             }
         }
@@ -116,6 +124,21 @@ namespace FutureHeroQuest.Level
             }
 
             CompleteFromMaster();
+        }
+
+        public void NotifyReachTarget(string targetId)
+        {
+            if (_completed || _completionRequested) return;
+            if (levelData == null) return;
+
+            string normalizedTarget = targetId?.Trim() ?? string.Empty;
+            if (string.IsNullOrEmpty(normalizedTarget)) return;
+
+            _changedTargetIds.Add(normalizedTarget);
+            if (levelData.completeCondition != LevelData.LevelCompleteCondition.FuturePlayerReachZone) return;
+            if (!string.Equals(levelData.targetIdRequired, normalizedTarget, System.StringComparison.OrdinalIgnoreCase)) return;
+
+            MarkLevelComplete();
         }
 
         [PunRPC]
@@ -165,6 +188,34 @@ namespace FutureHeroQuest.Level
                 SceneManager.LoadScene(nextLevelScene);
         }
 
+        private void OnGUI()
+        {
+            if (!_completed) return;
+
+            string title = string.IsNullOrEmpty(nextLevelScene) ? "CHAPTER 1 COMPLETE" : "LEVEL COMPLETE";
+            string subtitle = levelData != null ? levelData.displayName : SceneManager.GetActiveScene().name;
+
+            var boxRect = new Rect(Screen.width * 0.5f - 280f, 26f, 560f, 92f);
+            GUI.Box(boxRect, GUIContent.none);
+
+            var titleStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 30,
+                fontStyle = FontStyle.Bold,
+                normal = { textColor = Color.white }
+            };
+            GUI.Label(new Rect(boxRect.x, boxRect.y + 10f, boxRect.width, 40f), title, titleStyle);
+
+            var subtitleStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 18,
+                normal = { textColor = Color.white }
+            };
+            GUI.Label(new Rect(boxRect.x, boxRect.y + 52f, boxRect.width, 28f), subtitle, subtitleStyle);
+        }
+
         public void RequestResetLevel()
         {
             if (_resetRequested) return;
@@ -182,47 +233,54 @@ namespace FutureHeroQuest.Level
         private void RPC_RequestResetLevel(PhotonMessageInfo info)
         {
             if (!PhotonNetwork.IsMasterClient) return;
-            Debug.Log($"[LevelManager] Reset requested by actor #{info.Sender?.ActorNumber}");
-            ResetFromMaster();
+            Debug.LogWarning($"[LevelManager] Ignored remote reset request by actor #{info.Sender?.ActorNumber}; reset is host-only.");
         }
 
         private void ResetFromMaster()
         {
             if (_resetRequested) return;
             _resetRequested = true;
+            string activeScene = SceneManager.GetActiveScene().name;
 
             if (!PhotonNetwork.InRoom)
             {
-                RPC_PrepareResetLevel();
-                LoadCurrentScene();
+                StartCoroutine(ResetCurrentSceneLocally(activeScene));
                 return;
             }
 
-            photonView.RPC(nameof(RPC_PrepareResetLevel), RpcTarget.AllViaServer);
-
-            if (PhotonNetwork.IsMasterClient)
-            {
-                LoadCurrentScene();
-            }
+            photonView.RPC(nameof(RPC_ResetCurrentLevel), RpcTarget.AllViaServer, activeScene);
         }
 
         [PunRPC]
-        private void RPC_PrepareResetLevel()
+        private void RPC_ResetCurrentLevel(string sceneName, PhotonMessageInfo info)
+        {
+            int masterActor = PhotonNetwork.MasterClient != null ? PhotonNetwork.MasterClient.ActorNumber : -1;
+            int senderActor = info.Sender != null ? info.Sender.ActorNumber : -1;
+            if (PhotonNetwork.InRoom && senderActor != masterActor)
+            {
+                Debug.LogWarning($"[LevelManager] Ignored reset broadcast from non-master actor #{senderActor}.");
+                return;
+            }
+
+            _resetRequested = true;
+            StartCoroutine(ResetCurrentSceneLocally(sceneName));
+        }
+
+        private void PrepareResetLevelLocal()
         {
             if (TimelineEventBus.Instance != null) TimelineEventBus.Instance.ClearHistory();
+            PlayerSpawner.DestroyOwnedPlayerObjectsForSceneReload();
             _completed = false;
             _completionRequested = false;
             _changedTargetIds.Clear();
             CancelInvoke(nameof(LoadNext));
         }
 
-        private void LoadCurrentScene()
+        private IEnumerator ResetCurrentSceneLocally(string sceneName)
         {
-            string activeScene = SceneManager.GetActiveScene().name;
-            if (PhotonNetwork.InRoom)
-                PhotonNetwork.LoadLevel(activeScene);
-            else
-                SceneManager.LoadScene(activeScene);
+            PrepareResetLevelLocal();
+            yield return new WaitForSeconds(0.25f);
+            SceneManager.LoadScene(string.IsNullOrEmpty(sceneName) ? SceneManager.GetActiveScene().name : sceneName);
         }
 
         private bool AreRequiredPuzzleTargetsChanged()

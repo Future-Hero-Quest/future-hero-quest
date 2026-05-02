@@ -1,60 +1,79 @@
-# Release Acceptance Checklist
+# Release Acceptance - v1.0 Chapter 1
 
-Updated: 2026-05-02 11:20 UTC+8
+Status: accepted for submission
+Updated: 2026-05-02 15:39 UTC+8
 
 ## Baseline
 
-- `origin/dev`: `c4d742d merge: integrate art audio rescue pass`
-- `origin/main`: `07f2910 docs(workflow): add thread handoff prompts`
-- Unity: `6.4.2f1`
-- Target submission: Windows build on itch.io
-- DDL: `2026-05-03 19:00 UTC+8`
-
-Do not promote `dev` to `main` until Editor + exe acceptance passes.
-
-## Preflight
-
-- Confirm no other thread is using the main Unity worktree before switching branches.
-- Fast-forward the main Unity worktree to `origin/dev`; do not force-push.
-- Confirm Photon AppID remains local and untracked.
-- Confirm Build Settings contains only:
-  - `Assets/Scenes/Launcher.unity`
-  - `Assets/Scenes/Level01_Bridge.unity`
-  - `Assets/Scenes/Level02_Archive.unity`
-  - `Assets/Scenes/Level03_ClubRoom.unity`
-- Build from the main Unity worktree for the final standard package path:
+- Branch: `dev`
+- Accepted commit: `45e8a8f fix(level3): show exit prompt and completion`
+- Unity: `6000.4.2f1`
+- Target: Windows 64-bit development build
+- Build output:
   - `E:\黑客松\FHQ-Workspace\build\NetworkDemoWin\FutureHeroQuest.exe`
+  - `E:\黑客松\FHQ-Workspace\dist\FutureHeroQuest-v1.0-windows-20260502-1530.zip`
+- Zip SHA256:
+  - `99F930204A7DC76715D35DAAC057DA850E95E5F4015166888C7641233CD4D953`
 
-## Two-Client Acceptance
+## Accepted Flow
 
-Use two clients:
+Two-client acceptance was run with:
 
-- Unity Editor: open `Launcher`, press Play, click Create Room. This client becomes Past.
-- Windows exe: launch `FutureHeroQuest.exe`, click Join Room. This client becomes Future.
+- Unity Editor: host / Past player
+- Windows exe: client / Future player
+- Network: Photon PUN2 room flow through `Launcher`
 
-Controls:
+Accepted path:
 
-- Move: WASD or arrow keys.
-- Interact: `E` near prompt objects.
-- Reset current level: `R`.
-- Dialogue quick buttons: number keys when dialogue options are present.
+1. Launcher connects both clients to the same Photon room.
+2. `Level01_Bridge`
+   - Both players spawn and see the other player.
+   - Past selects the correct green repair interaction.
+   - Future bridge state repairs correctly.
+   - Level advances to `Level02_Archive`.
+3. `Level02_Archive`
+   - Future reads archive clue 314.
+   - Past places the correct archive file.
+   - Future unlocks the exit path.
+   - Level advances to `Level03_ClubRoom`.
+4. `Level03_ClubRoom`
+   - Past selects Shot C / Pocket 3.
+   - Future unlocks the final door.
+   - Future reaches the final exit.
+   - `CHAPTER 1 COMPLETE / Level 03 Club Room` appears.
 
-Acceptance path:
+## Release Fixes Included
 
-- Launcher: both clients connect to Photon and load `Level01_Bridge`.
-- L1 Bridge: both clients spawn, see each other moving, solve bridge repair feedback, then advance to `Level02_Archive`.
-- L2 Archive: verify missing/wrong/correct archive feedback, place Archive 314, unlock the future door, then advance to `Level03_ClubRoom`.
-- L3 ClubRoom: verify billiards result feedback, align/unlock the final door, and reach `L3_Exit`.
-- Whole run: no red Console errors, no scene desync, no wrong-role interaction.
+- `2b9e888 fix(release): prevent overlapping interactions`
+- `584889f fix(release): consume one interaction per frame`
+- `a55a2a1 fix(level3): make exit interaction reliable`
+- `45e8a8f fix(level3): show exit prompt and completion`
 
-Stop and report if either client disconnects, scenes desync, role-only interactions work for the wrong player, or a red Console error appears.
+These address the final P0 issues found during acceptance:
 
-## Release Gate
+- L1 overlapping repair interactions could overwrite `BridgeState=Supported`.
+- L3 final exit had no clear interaction prompt or completion feedback.
 
-- Unity Console red errors: none.
-- Windows build: launches on a clean run.
-- Photon: both clients can join the same room.
-- Gameplay: L1 -> L2 -> L3 path is completable.
-- Zip contains the full `NetworkDemoWin` folder.
-- Zip does not contain `Library/`, `Temp/`, `Logs/`, raw build cache, or Photon AppID.
-- `dev` can be promoted to `main` only after the accepted build is reproducible.
+## Verification
+
+- Unity script recompile: passed.
+- Unity Console error log after final build: empty.
+- EditMode test runner: no failed tests.
+- Windows package rebuilt after final L3 fix.
+- Final DLL timestamp in accepted build:
+  - `FutureHeroQuest_Data\Managed\Assembly-CSharp.dll`
+  - `2026-05-02 15:30:48 +08:00`
+
+## Submission Notes
+
+- Upload the full `NetworkDemoWin` folder as a zip.
+- Do not upload Unity `Library/`, `Temp/`, `Logs/`, raw build cache folders, or repository source folders.
+- Do not commit or publish Photon AppID screenshots/config files.
+- Mention that the demo requires two clients and internet access for Photon.
+- Known limitation: this is a hackathon demo with white-box / low-poly visuals and a shared demo room flow.
+
+## Remaining Non-Blocking Items
+
+- Capture final itch.io screenshots from the accepted build.
+- Upload the zip to itch.io.
+- Promote `dev` to `main` and tag `v1.0-submit` after this accepted state is preserved.

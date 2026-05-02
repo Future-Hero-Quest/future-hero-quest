@@ -80,6 +80,11 @@ Detailed third-party notices are documented in `Assets/ThirdParty/README.md` and
 
 ## Upload Checklist
 
+Accepted upload candidate:
+
+- File: `FutureHeroQuest-v1.0-windows-20260502-1530.zip`
+- SHA256: `99F930204A7DC76715D35DAAC057DA850E95E5F4015166888C7641233CD4D953`
+
 - Upload a zip of the full `NetworkDemoWin` folder.
 - Include screenshots for Launcher, 《断桥回声》, 《314号档案》, 《最后的社团室》, and ideally a two-client view.
 - Do not upload Unity `Library/`, `Temp/`, `Logs/`, build cache, or Photon AppID.

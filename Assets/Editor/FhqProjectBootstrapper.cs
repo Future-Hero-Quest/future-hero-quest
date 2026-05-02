@@ -23,9 +23,6 @@ namespace FutureHeroQuest.EditorTools
     {
         private const string LauncherScenePath = "Assets/Scenes/Launcher.unity";
         private const string LevelScenePath = "Assets/Scenes/Level01_Tree.unity";
-        private const string BridgeLevelScenePath = "Assets/Scenes/Level01_Bridge.unity";
-        private const string ArchiveLevelScenePath = "Assets/Scenes/Level02_Archive.unity";
-        private const string ClubRoomLevelScenePath = "Assets/Scenes/Level03_ClubRoom.unity";
         private const string PastPrefabPath = "Assets/Prefabs/Resources/PastPlayer.prefab";
         private const string FuturePrefabPath = "Assets/Prefabs/Resources/FuturePlayer.prefab";
 
@@ -48,13 +45,12 @@ namespace FutureHeroQuest.EditorTools
         [MenuItem("FHQ/Build Windows Network Demo")]
         public static void BuildWindowsNetworkDemo()
         {
-            GenerateNetworkDemo();
-
             string output = Path.GetFullPath(Path.Combine(Application.dataPath, "../../FHQ-Workspace/build/NetworkDemoWin/FutureHeroQuest.exe"));
             Directory.CreateDirectory(Path.GetDirectoryName(output));
+            if (!FhqBuildSceneUtility.TryGetFinalScenePathsForBuild(out string[] buildScenes)) return;
 
             var report = BuildPipeline.BuildPlayer(
-                GetBuildScenePaths().ToArray(),
+                buildScenes,
                 output,
                 BuildTarget.StandaloneWindows64,
                 BuildOptions.Development);
@@ -69,9 +65,42 @@ namespace FutureHeroQuest.EditorTools
             }
         }
 
+        [MenuItem("FHQ/Apply Launcher UX Polish")]
+        public static void ApplyLauncherUxPolish()
+        {
+            if (!File.Exists(LauncherScenePath))
+            {
+                Debug.LogError($"[FHQ] Launcher scene not found: {LauncherScenePath}");
+                return;
+            }
+
+            var scene = EditorSceneManager.OpenScene(LauncherScenePath, OpenSceneMode.Single);
+            var canvas = GameObject.Find("Canvas");
+            if (canvas == null)
+            {
+                Debug.LogError("[FHQ] Cannot apply Launcher UX polish: Canvas not found.");
+                return;
+            }
+
+            ConfigureCanvasScaler(canvas.GetComponent<CanvasScaler>() ?? canvas.AddComponent<CanvasScaler>());
+            SetRectByName("Title", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 150), new Vector2(640, 70));
+            SetTextSize("Title", 42);
+            SetRectByName("StatusText", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 82), new Vector2(640, 42));
+            SetTextSize("StatusText", 20);
+            SetRectByName("Hint", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -82), new Vector2(920, 46));
+            SetTextSize("Hint", 18);
+            SetButtonSize("CreateButton", new Vector2(-120, 0), 210, 54, 20);
+            SetButtonSize("JoinButton", new Vector2(120, 0), 210, 54, 20);
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene, LauncherScenePath);
+            Debug.Log("[FHQ] Applied Launcher UX polish.");
+        }
+
         private static void AutoBootstrapIfNeeded()
         {
             if (!Directory.Exists("Assets/Photon")) return;
+            if (FhqBuildSceneUtility.HasCompleteFinalSceneSet() && File.Exists(PastPrefabPath) && File.Exists(FuturePrefabPath)) return;
             if (File.Exists(LauncherScenePath) && File.Exists(LevelScenePath) && File.Exists(PastPrefabPath) && File.Exists(FuturePrefabPath)) return;
             GenerateNetworkDemo();
         }
@@ -83,34 +112,11 @@ namespace FutureHeroQuest.EditorTools
             CreatePlayerPrefab(FuturePrefabPath, "FuturePlayer", new Color(0.2f, 0.95f, 0.75f));
             CreateLauncherScene();
             CreateLevelScene();
-            var scenes = new List<EditorBuildSettingsScene>();
-            foreach (string scenePath in GetBuildScenePaths())
-            {
-                scenes.Add(new EditorBuildSettingsScene(scenePath, true));
-            }
-            EditorBuildSettings.scenes = scenes.ToArray();
+            FhqBuildSceneUtility.ApplyFinalBuildSettings();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene(LauncherScenePath);
             Debug.Log("[FHQ] Network demo bootstrap complete. Open Launcher, enter Play, then Create/Join room.");
-        }
-
-        private static List<string> GetBuildScenePaths()
-        {
-            var scenePaths = new List<string> { LauncherScenePath };
-            scenePaths.Add(File.Exists(BridgeLevelScenePath) ? BridgeLevelScenePath : LevelScenePath);
-
-            if (File.Exists(ArchiveLevelScenePath))
-                scenePaths.Add(ArchiveLevelScenePath);
-            else
-                Debug.LogWarning($"[FHQ] Build scene missing: {ArchiveLevelScenePath}");
-
-            if (File.Exists(ClubRoomLevelScenePath))
-                scenePaths.Add(ClubRoomLevelScenePath);
-            else
-                Debug.LogWarning($"[FHQ] Build scene missing: {ClubRoomLevelScenePath}");
-
-            return scenePaths;
         }
 
         private static void EnsureFolders()
@@ -188,8 +194,6 @@ namespace FutureHeroQuest.EditorTools
             network.AddComponent<NetworkManager>();
 
             var bus = new GameObject("TimelineEventBus");
-            var busPhotonView = bus.AddComponent<PhotonView>();
-            busPhotonView.sceneViewId = 1;
             bus.AddComponent<TimelineEventBus>();
 
             CreateLauncherCanvas();
@@ -203,23 +207,23 @@ namespace FutureHeroQuest.EditorTools
             var canvasGo = new GameObject("Canvas");
             var canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasGo.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            ConfigureCanvasScaler(canvasGo.AddComponent<CanvasScaler>());
             canvasGo.AddComponent<GraphicRaycaster>();
 
-            var title = CreateText(canvasGo.transform, "Title", "Future Hero Quest", 34, TextAnchor.MiddleCenter);
-            SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 130), new Vector2(520, 60));
+            var title = CreateText(canvasGo.transform, "Title", "Future Hero Quest", 42, TextAnchor.MiddleCenter);
+            SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 150), new Vector2(640, 70));
 
-            var status = CreateText(canvasGo.transform, "StatusText", "State: starting", 18, TextAnchor.MiddleCenter);
-            SetRect(status.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 68), new Vector2(520, 40));
+            var status = CreateText(canvasGo.transform, "StatusText", "State: starting", 20, TextAnchor.MiddleCenter);
+            SetRect(status.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 82), new Vector2(640, 42));
 
             var create = CreateButton(canvasGo.transform, "CreateButton", "Create Room");
-            SetRect(create.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-95, 0), new Vector2(170, 48));
+            SetRect(create.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-120, 0), new Vector2(210, 54));
 
             var join = CreateButton(canvasGo.transform, "JoinButton", "Join Room");
-            SetRect(join.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(95, 0), new Vector2(170, 48));
+            SetRect(join.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(120, 0), new Vector2(210, 54));
 
-            var hint = CreateText(canvasGo.transform, "Hint", "Run two clients. First clicks Create Room, second clicks Join Room.", 16, TextAnchor.MiddleCenter);
-            SetRect(hint.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -70), new Vector2(760, 44));
+            var hint = CreateText(canvasGo.transform, "Hint", "Run two clients. First clicks Create Room, second clicks Join Room.", 18, TextAnchor.MiddleCenter);
+            SetRect(hint.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -82), new Vector2(920, 46));
 
             var connectUi = canvasGo.AddComponent<ConnectUI>();
             var so = new SerializedObject(connectUi);
@@ -238,7 +242,7 @@ namespace FutureHeroQuest.EditorTools
             var button = go.AddComponent<Button>();
             button.targetGraphic = image;
 
-            var text = CreateText(go.transform, "Text", label, 18, TextAnchor.MiddleCenter);
+            var text = CreateText(go.transform, "Text", label, 20, TextAnchor.MiddleCenter);
             SetRect(text.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             text.color = Color.white;
             return button;
@@ -318,7 +322,7 @@ namespace FutureHeroQuest.EditorTools
             var canvasGo = new GameObject("Canvas");
             var canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasGo.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            ConfigureCanvasScaler(canvasGo.AddComponent<CanvasScaler>());
             canvasGo.AddComponent<GraphicRaycaster>();
 
             var text = CreateText(canvasGo.transform, "HudText", "WASD / Arrow Keys to move. R resets on host.", 16, TextAnchor.UpperLeft);
@@ -331,6 +335,49 @@ namespace FutureHeroQuest.EditorTools
             var go = new GameObject("EventSystem");
             go.AddComponent<EventSystem>();
             go.AddComponent<StandaloneInputModule>();
+        }
+
+        private static void ConfigureCanvasScaler(CanvasScaler scaler)
+        {
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1280f, 720f);
+            scaler.matchWidthOrHeight = 0.5f;
+        }
+
+        private static void SetTextSize(string objectName, int size)
+        {
+            var text = GameObject.Find(objectName)?.GetComponent<Text>();
+            if (text == null) return;
+            text.fontSize = size;
+            EditorUtility.SetDirty(text);
+        }
+
+        private static void SetRectByName(string objectName, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta)
+        {
+            var rect = GameObject.Find(objectName)?.GetComponent<RectTransform>();
+            if (rect == null) return;
+            SetRect(rect, anchorMin, anchorMax, anchoredPosition, sizeDelta);
+            EditorUtility.SetDirty(rect);
+        }
+
+        private static void SetButtonSize(string buttonName, Vector2 anchoredPosition, float width, float height, int textSize)
+        {
+            var button = GameObject.Find(buttonName);
+            if (button == null) return;
+
+            var rect = button.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                SetRect(rect, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), anchoredPosition, new Vector2(width, height));
+                EditorUtility.SetDirty(rect);
+            }
+
+            var label = button.GetComponentInChildren<Text>(true);
+            if (label != null)
+            {
+                label.fontSize = textSize;
+                EditorUtility.SetDirty(label);
+            }
         }
     }
 }
