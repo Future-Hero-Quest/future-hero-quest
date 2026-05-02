@@ -109,10 +109,10 @@ namespace FutureHeroQuest.EditorTools
             camera.tag = "MainCamera";
             var cam = camera.AddComponent<Camera>();
             cam.orthographic = true;
-            cam.orthographicSize = 7f;
+            cam.orthographicSize = 6.2f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.05f, 0.06f, 0.08f);
-            camera.transform.position = new Vector3(0f, 10.5f, -8.5f);
+            camera.transform.position = new Vector3(0f, 10.5f, -7f);
             camera.transform.rotation = Quaternion.Euler(55f, 0f, 0f);
 
             var light = new GameObject("Directional Light");

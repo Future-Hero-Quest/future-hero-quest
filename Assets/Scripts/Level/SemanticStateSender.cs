@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FutureHeroQuest.Core;
 using FutureHeroQuest.Players;
 using UnityEngine;
@@ -10,6 +11,8 @@ namespace FutureHeroQuest.Level
     /// </summary>
     public class SemanticStateSender : MonoBehaviour
     {
+        private static readonly List<SemanticStateSender> ActiveSenders = new List<SemanticStateSender>();
+
         [Header("State")]
         [SerializeField] private EventKind eventKind = EventKind.SetSemanticState;
         [SerializeField] private EventDirection direction = EventDirection.Bidirectional;
@@ -29,9 +32,26 @@ namespace FutureHeroQuest.Level
         private bool _sent;
         private Transform _localPlayer;
 
+        private void OnEnable()
+        {
+            if (!ActiveSenders.Contains(this))
+                ActiveSenders.Add(this);
+        }
+
+        private void OnDisable()
+        {
+            ActiveSenders.Remove(this);
+            SetPrompt(false);
+        }
+
         private void Update()
         {
-            if (_sent && sendOnce) return;
+            if (_sent && sendOnce)
+            {
+                SetPrompt(false);
+                return;
+            }
+
             if (!IsRoleAllowed())
             {
                 SetPrompt(false);
@@ -45,10 +65,10 @@ namespace FutureHeroQuest.Level
                 return;
             }
 
-            bool inRange = Vector3.Distance(transform.position, _localPlayer.position) <= interactRadius;
-            SetPrompt(inRange);
+            bool isNearest = FindNearestAvailable(_localPlayer.position, interactKey) == this;
+            SetPrompt(isNearest);
 
-            if (inRange && Input.GetKeyDown(interactKey))
+            if (isNearest && Input.GetKeyDown(interactKey))
             {
                 Send();
             }
@@ -63,10 +83,12 @@ namespace FutureHeroQuest.Level
             _sent = true;
 
             SetPrompt(false);
-            if (deactivateAfterSend == null) return;
-            foreach (GameObject obj in deactivateAfterSend)
+            if (deactivateAfterSend != null)
             {
-                if (obj != null) obj.SetActive(false);
+                foreach (GameObject obj in deactivateAfterSend)
+                {
+                    if (obj != null) obj.SetActive(false);
+                }
             }
 
             Debug.Log($"[SemanticStateSender] Sent {stateKey}={stateValue} ({eventKind})");
@@ -94,6 +116,36 @@ namespace FutureHeroQuest.Level
         private void SetPrompt(bool active)
         {
             if (promptUI != null) promptUI.SetActive(active);
+        }
+
+        private static SemanticStateSender FindNearestAvailable(Vector3 playerPosition, KeyCode key)
+        {
+            SemanticStateSender nearest = null;
+            float nearestSqrDistance = float.PositiveInfinity;
+
+            for (int i = ActiveSenders.Count - 1; i >= 0; i--)
+            {
+                SemanticStateSender sender = ActiveSenders[i];
+                if (sender == null)
+                {
+                    ActiveSenders.RemoveAt(i);
+                    continue;
+                }
+
+                if (!sender.isActiveAndEnabled) continue;
+                if (sender.interactKey != key) continue;
+                if (sender._sent && sender.sendOnce) continue;
+                if (!sender.IsRoleAllowed()) continue;
+
+                float sqrDistance = (sender.transform.position - playerPosition).sqrMagnitude;
+                if (sqrDistance > sender.interactRadius * sender.interactRadius) continue;
+                if (sqrDistance >= nearestSqrDistance) continue;
+
+                nearest = sender;
+                nearestSqrDistance = sqrDistance;
+            }
+
+            return nearest;
         }
 
         private void OnDrawGizmosSelected()
