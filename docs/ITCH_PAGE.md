@@ -1,62 +1,86 @@
 # Itch.io Page Draft
 
+## Title
+
+Future Hero Quest
+
+## Tagline
+
+One player is in 1996. One player is in 2026. Solve the same timeline from opposite ends.
+
 ## Short Description
 
-A two-player time-collaboration puzzle demo: one player is trapped in 1996, the other in 2026. Communicate, change the timeline, and solve three compact rooms together.
+A two-player online time puzzle demo. Communicate across 30 years, change the timeline, and clear three compact co-op rooms together.
 
-## Project Description
+## Long Description
 
-Future Hero Quest is a 2.5D online co-op puzzle demo built for a hackathon. One player plays the Past role and the other plays the Future role. Each player sees a different version of the same timeline, and progress depends on sharing information across time.
+```text
+Future Hero Quest is a 2.5D online co-op puzzle demo built for a hackathon.
 
-The demo focuses on event-driven time interaction rather than long-form story. Past and Future do not continuously sync physics; instead, important actions are sent as semantic timeline events through Photon PUN2. This keeps the online experience simple enough for a game jam while still making one player's actions visibly change the other player's world.
+One player becomes the Past. The other becomes the Future.
+You are separated by 30 years, but your worlds are still connected.
 
-## Included Demo Flow
+Past can repair, place, and trigger events.
+Future can inspect what changed, report feedback, and unlock the path forward.
 
-- Launcher: create or join the Photon room.
-- Level 01 Bridge: repair feedback across time.
-- Level 02 Archive: missing, wrong, and correct archive state feedback.
-- Level 03 Club Room: billiards result and final lock feedback.
+Instead of synchronizing full physics, the game sends semantic timeline events through Photon PUN2:
+bridge states, archive states, billiards results, and lock states.
+The result is a compact three-room demo about communication, timing, and trusting what the other player can see.
+```
+
+## Demo Rooms
+
+| Room | Theme | Co-op Moment |
+|---|---|---|
+| Level 01 Bridge | Broken bridge repair | Future reads the bridge outcome, Past chooses the repair |
+| Level 02 Archive | Missing archive file | Wrong and correct archive states change the Future path |
+| Level 03 Club Room | Billiards and final lock | Shot result drives the final unlock |
 
 ## How To Play
 
-This is a two-player online build.
+This build requires two online clients.
 
-1. Player 1 launches the game and clicks Create Room.
-2. Player 2 launches the game and clicks Join Room.
+1. Player 1 launches the game and clicks **Create Room**.
+2. Player 2 launches the game and clicks **Join Room**.
 3. Player 1 becomes Past. Player 2 becomes Future.
 4. Talk to each other and solve each room.
 
-Controls:
+## Controls
 
-- WASD / arrow keys: move
-- E: interact
-- R: reset current level
-- Number keys: send dialogue shortcuts when available
+| Input | Action |
+|---|---|
+| WASD / Arrow keys | Move |
+| E | Interact |
+| R | Reset current level |
+| Number keys | Dialogue shortcuts when available |
 
 ## Requirements
 
-- Windows build
+- Windows
 - Internet access for Photon
 - Two running clients
+- Voice chat or local conversation recommended
 
 ## Known Limitations
 
-- This is a hackathon demo, not a final commercial release.
+- Hackathon demo, not a final commercial release.
 - Photon room flow uses a shared demo room name.
-- WebGL and Mac are planned stretch targets; the current submission target is Windows.
-- Some visuals are white-box / low-poly by design.
+- Current submission target is Windows; WebGL/Mac are stretch goals.
+- Some visuals are intentionally white-box / low-poly.
 
 ## Credits
 
 - Engine: Unity 6.4.2f1
 - Networking: Photon PUN2
-- Art and audio: Kenney and OpenGameArt CC0 assets, documented under `Assets/ThirdParty/README.md` and `Assets/ThirdParty/Licenses/`
+- Art and audio: Kenney and OpenGameArt CC0 assets
 - Additional tech: OpenFracture and TemporalPhysicsToolkit
-- Inspiration: Titanfall 2's "Effect and Cause" and the Haruhi Suzumiya series
+- Inspiration: *Titanfall 2: Effect and Cause* and the *Haruhi Suzumiya* series
+
+Detailed third-party notices are documented in `Assets/ThirdParty/README.md` and `Assets/ThirdParty/Licenses/`.
 
 ## Upload Checklist
 
 - Upload a zip of the full `NetworkDemoWin` folder.
-- Include 3-5 screenshots: Launcher, L1 Bridge, L2 Archive, L3 Club Room, and ideally a two-client view.
+- Include screenshots for Launcher, L1 Bridge, L2 Archive, L3 Club Room, and ideally a two-client view.
 - Do not upload Unity `Library/`, `Temp/`, `Logs/`, build cache, or Photon AppID.
-- Mention that two players and internet access are required.
+- Mention clearly that two players and internet access are required.
