@@ -12,6 +12,8 @@
 
 `v1.0 Chapter 1《都市怪谈篇》` 是 Hackathon Submission Cut：三个紧凑关卡、Windows 首发、Photon 双人联网、语义事件驱动的时间线同步。
 
+<B>Warning : 这是一个严重过时的repo，玩法和故事由第三方总结不代表开发者立场。只有悖论引擎TemporalToolKit具有参考价值。</B>
+
 Current `main` also carries a v1.2 progress snapshot: first-person mouse-look movement, Scene02 temporal fracture playback, outline scenes, and minimal audio/fog/emission polish. The accepted downloadable package remains the v1.0 zip until a new build is verified.
 
 ## Release Status
