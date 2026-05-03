@@ -8,7 +8,7 @@
 ![Platform](https://img.shields.io/badge/Target-Windows-2ea44f)
 ![Status](https://img.shields.io/badge/Status-v1.0%20Accepted%20%2B%20v1.2%20Progress-brightgreen)
 
-**Future Hero Quest** 是一个黑客松项目：一名玩家位于 1996 年，另一名玩家位于 2026 年。两人看到的是同一地点在不同时代的状态，需要通过沟通、观察反馈、触发机关，把过去的改变传递到未来。
+**Future Hero Quest** 是一个黑客松项目：一名玩家位于 2005 年，另一名玩家位于 2022 年。两人看到的是同一地点在不同时代的状态，需要通过沟通、观察反馈、触发机关，把过去的改变传递到未来。
 
 `v1.0 Chapter 1《都市怪谈篇》` 是 Hackathon Submission Cut：三个紧凑关卡、Windows 首发、Photon 双人联网、语义事件驱动的时间线同步。
 
